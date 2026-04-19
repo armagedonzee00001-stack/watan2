@@ -180,6 +180,79 @@
             object-fit: cover;
         }
 
+        /* ========== Members Section ========== */
+        .members-section {
+            background: var(--black-light);
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .member-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            overflow: hidden;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .member-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--burgundy-light);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .member-card-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+        }
+
+        .member-card-img-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: var(--burgundy-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .member-card-body {
+            padding: 18px 15px;
+        }
+
+        .member-card-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--white-soft);
+            margin-bottom: 6px;
+        }
+
+        .member-card-position {
+            font-size: 13px;
+            color: var(--gold-accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .member-card-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
         /* ========== Navbar ========== */
         .navbar {
             background: rgba(10, 10, 10, 0.95);
@@ -1265,21 +1338,6 @@
 </head>
 <body>
 
-    <!-- ========== Top Bar - الأعضاء الجدد ========== -->
-    <div class="top-bar">
-        <div class="top-bar-content">
-            <div class="top-bar-label">
-                <i class="fas fa-user-plus"></i>
-                <span>أعضاء جدد</span>
-            </div>
-            <div class="marquee-container">
-                <div class="marquee-track" id="newMembersTrack">
-                    <div class="loading"><i class="fas fa-spinner"></i></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ========== Navbar ========== -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
@@ -1403,6 +1461,21 @@
                         <strong id="countMeetings">0</strong> اجتماع مجدول
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== Members Section ========== -->
+    <section class="section members-section" id="members">
+        <div class="section-container">
+            <div class="section-header">
+                <p class="section-subtitle">عائلتنا تكبر</p>
+                <h2 class="section-title">الأعضاء الجدد</h2>
+                <div class="section-divider"></div>
+                <p class="section-description">نرحب بأحدث أعضاء عائلتنا الكرام</p>
+            </div>
+            <div class="members-grid" id="newMembersGrid">
+                <div class="loading"><i class="fas fa-spinner"></i></div>
             </div>
         </div>
     </section>
@@ -1678,26 +1751,31 @@
                     .order('created_at', { ascending: false })
                     .limit(20);
 
-                const track = document.getElementById('newMembersTrack');
-                
+                const grid = document.getElementById('newMembersGrid');
+
                 if (error || !data || data.length === 0) {
-                    track.innerHTML = '<div class="member-item"><i class="fas fa-users"></i> مرحباً بأعضائنا الكرام</div>';
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1;">
+                            <i class="fas fa-users"></i>
+                            <p>لا يوجد أعضاء جدد حالياً</p>
+                        </div>`;
                     return;
                 }
 
-                // تكرار العناصر عشان الحركة تبان سلسة
-                const membersHtml = data.map(m => `
-                    <div class="member-item">
-                        <div class="member-avatar">
-                            ${m.image_url ? `<img src="${m.image_url}" alt="${m.full_name}">` : m.full_name.charAt(0)}
+                grid.innerHTML = data.map(m => `
+                    <div class="member-card">
+                        ${m.image_url
+                            ? `<img src="${m.image_url}" alt="${m.full_name}" class="member-card-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                               <div class="member-card-img-placeholder" style="display:none;">${m.full_name.charAt(0)}</div>`
+                            : `<div class="member-card-img-placeholder">${m.full_name.charAt(0)}</div>`
+                        }
+                        <div class="member-card-body">
+                            <div class="member-card-name">${m.full_name}</div>
+                            <div class="member-card-position">${m.position || 'عضو جديد'}</div>
+                            ${m.created_at ? `<div class="member-card-date"><i class="far fa-calendar-alt"></i> ${formatDate(m.created_at)}</div>` : ''}
                         </div>
-                        <span>${m.full_name}</span>
-                        <i class="fas fa-check-circle"></i>
-                        <small style="color:var(--gold-accent)">${m.position || 'عضو جديد'}</small>
                     </div>
                 `).join('');
-
-                track.innerHTML = membersHtml + membersHtml;
             } catch (e) {
                 console.error('Error loading members:', e);
             }
