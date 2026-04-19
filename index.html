@@ -231,6 +231,49 @@
             gap: 5px;
         }
 
+        .members-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid var(--border-dark);
+            background: var(--gradient-card);
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-btn:hover {
+            border-color: var(--burgundy-light);
+            color: var(--white-soft);
+        }
+
+        .page-btn.active {
+            background: var(--burgundy);
+            border-color: var(--burgundy-light);
+            color: white;
+            box-shadow: 0 4px 15px rgba(92,15,31,0.4);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
         /* ========== Navbar ========== */
         .navbar {
             background: rgba(10, 10, 10, 0.95);
@@ -1312,6 +1355,181 @@
             .hero-stats { grid-template-columns: 1fr; gap: 15px; }
             .big-logo, .big-logo-placeholder { width: 200px; height: 200px; }
         }
+
+        /* ========== Modal ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--black-light);
+            border: 1px solid var(--burgundy-light);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(92,15,31,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-dark);
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--white-soft);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-title i {
+            color: var(--burgundy-light);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: white; }
+
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .modal-meta span {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-meta span i { color: var(--burgundy-light); }
+
+        .modal-text {
+            color: var(--text-light);
+            line-height: 1.9;
+            font-size: 15px;
+        }
+
+        .modal-list-item {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+
+        .modal-list-item h4 {
+            color: var(--white-soft);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .modal-list-item .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .modal-list-item .meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .modal-list-item .meta i { color: var(--burgundy-light); }
+
+        .modal-list-item p {
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .modal-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 15px;
+        }
+
+        .modal-empty i {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 12px;
+            color: var(--burgundy-light);
+        }
+
+        .activity-card { cursor: pointer; }
+
+        .activity-open-btn {
+            display: block;
+            width: calc(100% - 2px);
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-top: 1px solid var(--border-dark);
+            color: var(--burgundy-light);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .activity-open-btn:hover {
+            background: var(--burgundy-dark);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -1407,7 +1625,7 @@
             </div>
 
             <div class="activities-grid">
-                <div class="activity-card">
+                <div class="activity-card" onclick="showActivitiesList()">
                     <div class="activity-icon">
                         <i class="fas fa-flag"></i>
                     </div>
@@ -1416,9 +1634,10 @@
                     <div class="activity-count">
                         <strong id="countActivities">0</strong> فاعلية قائمة
                     </div>
+                    <button class="activity-open-btn"><i class="fas fa-eye"></i> عرض الفاعليات</button>
                 </div>
 
-                <div class="activity-card">
+                <div class="activity-card" onclick="showCoursesList()">
                     <div class="activity-icon">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
@@ -1427,9 +1646,10 @@
                     <div class="activity-count">
                         <strong id="countCourses">0</strong> دورة متاحة
                     </div>
+                    <button class="activity-open-btn"><i class="fas fa-eye"></i> عرض الدورات</button>
                 </div>
 
-                <div class="activity-card">
+                <div class="activity-card" onclick="showMeetingsList()">
                     <div class="activity-icon">
                         <i class="fas fa-users"></i>
                     </div>
@@ -1438,6 +1658,7 @@
                     <div class="activity-count">
                         <strong id="countMeetings">0</strong> اجتماع مجدول
                     </div>
+                    <button class="activity-open-btn"><i class="fas fa-eye"></i> عرض الاجتماعات</button>
                 </div>
             </div>
         </div>
@@ -1455,6 +1676,7 @@
             <div class="members-list" id="newMembersGrid">
                 <div class="loading"><i class="fas fa-spinner"></i></div>
             </div>
+            <div class="members-pagination" id="membersPagination"></div>
         </div>
     </section>
 
@@ -1619,6 +1841,19 @@
         <span id="toastMessage">رسالة</span>
     </div>
 
+    <!-- ========== Modal ========== -->
+    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle"><i class="fas fa-info-circle"></i> <span>التفاصيل</span></div>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // ============================================================
         // Supabase Configuration
@@ -1717,8 +1952,12 @@
         }
 
         // ============================================================
-        // تحميل الأعضاء الجدد
+        // تحميل الأعضاء الجدد مع Pagination
         // ============================================================
+        let allMembers = [];
+        const MEMBERS_PER_PAGE = 10;
+        let currentMemberPage = 1;
+
         async function loadNewMembers() {
             try {
                 const { data, error } = await supabaseClient
@@ -1726,8 +1965,7 @@
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order', { ascending: true })
-                    .order('created_at', { ascending: false })
-                    .limit(20);
+                    .order('created_at', { ascending: false });
 
                 const grid = document.getElementById('newMembersGrid');
 
@@ -1740,18 +1978,47 @@
                     return;
                 }
 
-                grid.innerHTML = data.map(m => `
-                    <div class="member-row">
-                        <div class="member-row-name">
-                            <i class="fas fa-user-check"></i>
-                            ${m.full_name}
-                        </div>
-                        ${m.created_at ? `<div class="member-row-date"><i class="far fa-calendar-alt"></i> ${formatDate(m.created_at)}</div>` : ''}
-                    </div>
-                `).join('');
+                allMembers = data;
+                renderMembersPage(1);
             } catch (e) {
                 console.error('Error loading members:', e);
             }
+        }
+
+        function renderMembersPage(page) {
+            currentMemberPage = page;
+            const grid = document.getElementById('newMembersGrid');
+            const pagination = document.getElementById('membersPagination');
+            const totalPages = Math.ceil(allMembers.length / MEMBERS_PER_PAGE);
+            const start = (page - 1) * MEMBERS_PER_PAGE;
+            const pageData = allMembers.slice(start, start + MEMBERS_PER_PAGE);
+
+            grid.innerHTML = pageData.map(m => `
+                <div class="member-row">
+                    <div class="member-row-name">
+                        <i class="fas fa-user-check"></i>
+                        ${m.full_name}
+                    </div>
+                    ${m.created_at ? `<div class="member-row-date"><i class="far fa-calendar-alt"></i> ${formatDate(m.created_at)}</div>` : ''}
+                </div>
+            `).join('');
+
+            // Pagination buttons
+            if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+            let btns = '';
+            btns += `<button class="page-btn" onclick="renderMembersPage(${page-1})" ${page===1?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - page) > 1) {
+                    if (i === 3 || i === totalPages - 2) btns += `<span style="color:var(--text-muted);padding:0 4px;">...</span>`;
+                    continue;
+                }
+                btns += `<button class="page-btn ${i===page?'active':''}" onclick="renderMembersPage(${i})">${i}</button>`;
+            }
+            btns += `<button class="page-btn" onclick="renderMembersPage(${page+1})" ${page===totalPages?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+            pagination.innerHTML = btns;
+
+            document.getElementById('members').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // ============================================================
@@ -1847,7 +2114,93 @@
         async function showNewsDetail(id) {
             const { data } = await supabaseClient.from('news').select('*').eq('id', id).single();
             if (!data) return;
-            alert(`${data.title}\n\n${data.content || data.summary}`);
+            openModal(
+                `<i class="fas fa-newspaper"></i> <span>${data.title}</span>`,
+                `
+                ${data.image_url ? `<img src="${data.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                <div class="modal-meta">
+                    ${data.news_date ? `<span><i class="far fa-calendar"></i> ${formatDate(data.news_date)}</span>` : ''}
+                    ${data.category ? `<span><i class="fas fa-tag"></i> ${data.category}</span>` : ''}
+                </div>
+                <div class="modal-text">${(data.content || data.summary || '').replace(/\n/g, '<br>')}</div>
+                `
+            );
+        }
+
+        // Modal helpers
+        function openModal(titleHtml, bodyHtml) {
+            document.getElementById('modalTitle').innerHTML = titleHtml;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('modalOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        async function showActivitiesList() {
+            openModal('<i class="fas fa-flag"></i> <span>الفاعليات والمبادرات</span>', '<div style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:var(--burgundy-light)"></i></div>');
+            const { data } = await supabaseClient.from('activities').select('*').eq('status', 'published').order('created_at', { ascending: false });
+            if (!data || data.length === 0) {
+                document.getElementById('modalBody').innerHTML = '<div class="modal-empty"><i class="fas fa-flag"></i> لا توجد فاعليات حالياً</div>';
+                return;
+            }
+            document.getElementById('modalBody').innerHTML = data.map(a => `
+                <div class="modal-list-item">
+                    ${a.image_url ? `<img src="${a.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                    <h4>${a.title}</h4>
+                    <div class="meta">
+                        ${a.activity_date ? `<span><i class="far fa-calendar"></i> ${formatDate(a.activity_date)}</span>` : ''}
+                        ${a.location ? `<span><i class="fas fa-map-marker-alt"></i> ${a.location}</span>` : ''}
+                        ${a.category ? `<span><i class="fas fa-tag"></i> ${a.category}</span>` : ''}
+                    </div>
+                    ${a.description ? `<p>${a.description}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function showCoursesList() {
+            openModal('<i class="fas fa-graduation-cap"></i> <span>الدورات التدريبية</span>', '<div style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:var(--burgundy-light)"></i></div>');
+            const { data } = await supabaseClient.from('courses').select('*').eq('status', 'published').order('created_at', { ascending: false });
+            if (!data || data.length === 0) {
+                document.getElementById('modalBody').innerHTML = '<div class="modal-empty"><i class="fas fa-graduation-cap"></i> لا توجد دورات حالياً</div>';
+                return;
+            }
+            document.getElementById('modalBody').innerHTML = data.map(c => `
+                <div class="modal-list-item">
+                    ${c.image_url ? `<img src="${c.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                    <h4>${c.title}</h4>
+                    <div class="meta">
+                        ${c.start_date ? `<span><i class="far fa-calendar"></i> ${formatDate(c.start_date)}</span>` : ''}
+                        ${c.instructor ? `<span><i class="fas fa-user-tie"></i> ${c.instructor}</span>` : ''}
+                        ${c.duration ? `<span><i class="fas fa-clock"></i> ${c.duration}</span>` : ''}
+                    </div>
+                    ${c.description ? `<p>${c.description}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function showMeetingsList() {
+            openModal('<i class="fas fa-users"></i> <span>الاجتماعات</span>', '<div style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:var(--burgundy-light)"></i></div>');
+            const { data } = await supabaseClient.from('meetings').select('*').eq('status', 'published').order('created_at', { ascending: false });
+            if (!data || data.length === 0) {
+                document.getElementById('modalBody').innerHTML = '<div class="modal-empty"><i class="fas fa-users"></i> لا توجد اجتماعات حالياً</div>';
+                return;
+            }
+            document.getElementById('modalBody').innerHTML = data.map(m => `
+                <div class="modal-list-item">
+                    <h4>${m.title}</h4>
+                    <div class="meta">
+                        ${m.meeting_date ? `<span><i class="far fa-calendar"></i> ${formatDate(m.meeting_date)}</span>` : ''}
+                        ${m.location ? `<span><i class="fas fa-map-marker-alt"></i> ${m.location}</span>` : ''}
+                    </div>
+                    ${m.description ? `<p>${m.description}</p>` : ''}
+                </div>
+            `).join('');
         }
 
         // ============================================================
