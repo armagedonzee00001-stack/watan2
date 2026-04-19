@@ -1530,6 +1530,132 @@
             background: var(--burgundy-dark);
             color: white;
         }
+
+        /* ========== Floating Buttons ========== */
+        .floating-btns {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 999;
+        }
+
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .float-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+        }
+
+        .float-btn.whatsapp { background: #25D366; }
+        .float-btn.facebook { background: #1877F2; }
+        .float-btn.phone    { background: var(--burgundy); border: 2px solid var(--burgundy-light); }
+
+        /* ========== Members New Cards ========== */
+        .members-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .members-cards-grid { grid-template-columns: 1fr 1fr; }
+            .floating-btns { bottom: 20px; left: 12px; }
+            .float-btn { width: 46px; height: 46px; font-size: 18px; }
+        }
+
+        .mem-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 14px;
+            overflow: hidden;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .mem-card:hover {
+            border-color: var(--burgundy-light);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .mem-card-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+        }
+
+        .mem-card-img-ph {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: var(--burgundy-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.25);
+        }
+
+        .mem-card-body {
+            padding: 12px 10px;
+        }
+
+        .mem-card-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white-soft);
+            margin-bottom: 4px;
+        }
+
+        .mem-card-pos {
+            font-size: 12px;
+            color: var(--gold-accent);
+            margin-bottom: 4px;
+        }
+
+        .mem-card-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Gallery in modal */
+        .modal-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-gallery img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal-gallery img:hover { transform: scale(1.04); }
     </style>
 </head>
 <body>
@@ -1540,7 +1666,7 @@
             <a href="#" class="nav-logo">
                 <img src="" id="navLogo" alt="شعار القيادة" style="display:none;" onerror="this.style.display='none'">
                 <div class="nav-logo-text">
-                    <span class="main">القائد مصطفى ياسين</span>
+                    <span class="main">القائد مصطفى ياسين الدن</span>
                     <span class="sub">الموقع الرسمي</span>
                 </div>
             </a>
@@ -1670,8 +1796,8 @@
                 <div class="section-divider"></div>
                 <p class="section-description">نرحب بأحدث أعضاء عائلتنا الكرام</p>
             </div>
-            <div class="members-list" id="newMembersGrid">
-                <div class="loading"><i class="fas fa-spinner"></i></div>
+            <div class="members-cards-grid" id="newMembersGrid">
+                <div class="loading" style="grid-column:1/-1"><i class="fas fa-spinner"></i></div>
             </div>
             <div class="members-pagination" id="membersPagination"></div>
         </div>
@@ -1755,10 +1881,8 @@
             </div>
 
             <div class="big-logo-container">
-                <img src="" id="bigLogo" alt="شعار القيادة" class="big-logo" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="big-logo-placeholder" style="display:none;">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
+                <img src="" id="bigLogo" alt="شعار القيادة" class="big-logo" style="display:none;" onerror="this.style.display='none';">
+
             </div>
 
             <div class="announcements-content">
@@ -1789,10 +1913,8 @@
     <footer>
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="" id="footerLogo" alt="شعار" class="footer-logo" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="footer-logo-placeholder" style="display:none;">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
+                <img src="" id="footerLogo" alt="شعار" class="footer-logo" style="display:none;" onerror="this.style.display='none';">
+
                 <div>
                     <h3>القائد مصطفى ياسين الدن</h3>
                     <p>قيادة . عطاء . بناء</p>
@@ -1837,6 +1959,20 @@
         <i class="fas fa-info-circle"></i>
         <span id="toastMessage">رسالة</span>
     </div>
+
+    <!-- ========== Floating Buttons ========== -->
+    <div class="floating-btns" id="floatingBtns" style="display:none;">
+        <a class="float-btn whatsapp" id="floatWhatsapp" href="#" target="_blank" title="واتساب">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a class="float-btn facebook" id="floatFacebook" href="#" target="_blank" title="فيسبوك">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a class="float-btn phone" id="floatPhone" href="#" title="اتصال">
+            <i class="fas fa-phone"></i>
+        </a>
+    </div>
+
 
     <!-- ========== Modal ========== -->
     <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
@@ -1943,6 +2079,26 @@
                 if (data.instagram_url) socialLinks.innerHTML += `<a href="${data.instagram_url}" target="_blank"><i class="fab fa-instagram"></i></a>`;
                 if (data.youtube_url) socialLinks.innerHTML += `<a href="${data.youtube_url}" target="_blank"><i class="fab fa-youtube"></i></a>`;
                 if (data.whatsapp_number) socialLinks.innerHTML += `<a href="https://wa.me/${data.whatsapp_number}" target="_blank"><i class="fab fa-whatsapp"></i></a>`;
+
+                // Floating buttons
+                const floatDiv = document.getElementById('floatingBtns');
+                let showFloat = false;
+                if (data.whatsapp_number) {
+                    document.getElementById('floatWhatsapp').href = `https://wa.me/${data.whatsapp_number}`;
+                    document.getElementById('floatWhatsapp').style.display = 'flex';
+                    showFloat = true;
+                } else { document.getElementById('floatWhatsapp').style.display = 'none'; }
+                if (data.facebook_url) {
+                    document.getElementById('floatFacebook').href = data.facebook_url;
+                    document.getElementById('floatFacebook').style.display = 'flex';
+                    showFloat = true;
+                } else { document.getElementById('floatFacebook').style.display = 'none'; }
+                if (data.phone) {
+                    document.getElementById('floatPhone').href = `tel:${data.phone}`;
+                    document.getElementById('floatPhone').style.display = 'flex';
+                    showFloat = true;
+                } else { document.getElementById('floatPhone').style.display = 'none'; }
+                if (showFloat) floatDiv.style.display = 'flex';
             } catch (e) {
                 console.error('Error loading config:', e);
             }
@@ -1952,7 +2108,7 @@
         // تحميل الأعضاء الجدد مع Pagination
         // ============================================================
         let allMembers = [];
-        const MEMBERS_PER_PAGE = 10;
+        const MEMBERS_PER_PAGE = 3;
         let currentMemberPage = 1;
 
         async function loadNewMembers() {
@@ -1967,11 +2123,7 @@
                 const grid = document.getElementById('newMembersGrid');
 
                 if (error || !data || data.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state" style="grid-column:1/-1;">
-                            <i class="fas fa-users"></i>
-                            <p>لا يوجد أعضاء جدد حالياً</p>
-                        </div>`;
+                    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-users"></i><p>لا يوجد أعضاء جدد حالياً</p></div>`;
                     return;
                 }
 
@@ -1991,16 +2143,20 @@
             const pageData = allMembers.slice(start, start + MEMBERS_PER_PAGE);
 
             grid.innerHTML = pageData.map(m => `
-                <div class="member-row">
-                    <div class="member-row-name">
-                        <i class="fas fa-user-check"></i>
-                        ${m.full_name}
+                <div class="mem-card" onclick="showMemberDetail(${JSON.stringify(m).replace(/"/g,'&quot;')})">
+                    ${m.image_url
+                        ? `<img src="${m.image_url}" class="mem-card-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                           <div class="mem-card-img-ph" style="display:none">${m.full_name.charAt(0)}</div>`
+                        : `<div class="mem-card-img-ph">${m.full_name.charAt(0)}</div>`
+                    }
+                    <div class="mem-card-body">
+                        <div class="mem-card-name">${m.full_name}</div>
+                        <div class="mem-card-pos">${m.position || 'عضو'}</div>
+                        ${m.created_at ? `<div class="mem-card-date"><i class="far fa-calendar-alt"></i> ${formatDate(m.created_at)}</div>` : ''}
                     </div>
-                    ${m.created_at ? `<div class="member-row-date"><i class="far fa-calendar-alt"></i> ${formatDate(m.created_at)}</div>` : ''}
                 </div>
             `).join('');
 
-            // Pagination buttons
             if (totalPages <= 1) { pagination.innerHTML = ''; return; }
 
             let btns = '';
@@ -2016,6 +2172,19 @@
             pagination.innerHTML = btns;
 
             document.getElementById('members').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showMemberDetail(m) {
+            openModal(
+                `<i class="fas fa-user"></i> <span>${m.full_name}</span>`,
+                `
+                ${m.image_url ? `<img src="${m.image_url}" class="modal-img">` : ''}
+                <div class="modal-meta">
+                    ${m.position ? `<span><i class="fas fa-id-badge"></i> ${m.position}</span>` : ''}
+                    ${m.created_at ? `<span><i class="far fa-calendar-alt"></i> انضم ${formatDate(m.created_at)}</span>` : ''}
+                </div>
+                `
+            );
         }
 
         // ============================================================
@@ -2139,6 +2308,11 @@
 
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+        function buildGallery(images) {
+            if (!images || !images.length) return '';
+            return `<div class="modal-gallery">${images.map(url => `<img src="${url}" onerror="this.style.display='none'" onclick="window.open('${url}','_blank')">`).join('')}</div>`;
+        }
+
         async function showActivitiesList() {
             openModal('<i class="fas fa-flag"></i> <span>الفاعليات والمبادرات</span>', '<div style="text-align:center;padding:30px"><i class="fas fa-spinner fa-spin" style="font-size:30px;color:var(--burgundy-light)"></i></div>');
             const { data } = await supabaseClient.from('activities').select('*').eq('status', 'published').order('created_at', { ascending: false });
@@ -2156,6 +2330,7 @@
                         ${a.category ? `<span><i class="fas fa-tag"></i> ${a.category}</span>` : ''}
                     </div>
                     ${a.description ? `<p>${a.description}</p>` : ''}
+                    ${buildGallery([a.gallery_1, a.gallery_2, a.gallery_3, a.gallery_4, a.gallery_5].filter(Boolean))}
                 </div>
             `).join('');
         }
@@ -2177,6 +2352,7 @@
                         ${c.duration ? `<span><i class="fas fa-clock"></i> ${c.duration}</span>` : ''}
                     </div>
                     ${c.description ? `<p>${c.description}</p>` : ''}
+                    ${buildGallery([c.gallery_1, c.gallery_2, c.gallery_3, c.gallery_4, c.gallery_5].filter(Boolean))}
                 </div>
             `).join('');
         }
@@ -2190,12 +2366,14 @@
             }
             document.getElementById('modalBody').innerHTML = data.map(m => `
                 <div class="modal-list-item">
+                    ${m.image_url ? `<img src="${m.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
                     <h4>${m.title}</h4>
                     <div class="meta">
                         ${m.meeting_date ? `<span><i class="far fa-calendar"></i> ${formatDate(m.meeting_date)}</span>` : ''}
                         ${m.location ? `<span><i class="fas fa-map-marker-alt"></i> ${m.location}</span>` : ''}
                     </div>
                     ${m.description ? `<p>${m.description}</p>` : ''}
+                    ${buildGallery([m.gallery_1, m.gallery_2, m.gallery_3, m.gallery_4, m.gallery_5].filter(Boolean))}
                 </div>
             `).join('');
         }
