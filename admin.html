@@ -1158,10 +1158,19 @@
     </div>
 
     <script>
-        // ==================== Supabase ====================
+        // ==================== Supabase (Safe Init) ====================
         const SUPABASE_URL = 'https://wxyvibppnhtmcbebjptv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_YUuTaCVyM1Gsv_sjEUqg7w_Rzc96Ezm';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabase = null;
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.warn('⚠️ Supabase SDK لم يتم تحميله - بعض المميزات قد لا تعمل');
+            }
+        } catch (err) {
+            console.error('❌ فشل تحميل Supabase:', err);
+        }
 
         let currentUser = null;
         let editingId = null;
