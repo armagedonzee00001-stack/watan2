@@ -2289,6 +2289,7 @@
                     ${data.category ? `<span><i class="fas fa-tag"></i> ${data.category}</span>` : ''}
                 </div>
                 <div class="modal-text">${(data.content || data.summary || '').replace(/\n/g, '<br>')}</div>
+                ${buildGallery([data.gallery_1, data.gallery_2, data.gallery_3, data.gallery_4, data.gallery_5].filter(Boolean))}
                 `
             );
         }
@@ -2401,7 +2402,7 @@
                 }
 
                 list.innerHTML = data.map(e => `
-                    <li class="announcement-item">
+                    <li class="announcement-item" onclick="showUpcomingEventDetail(${JSON.stringify(e).replace(/"/g,'&quot;')})" style="cursor:pointer">
                         <h4>${e.title}</h4>
                         <div class="meta">
                             ${e.event_date ? `<span><i class="far fa-calendar"></i> ${formatDate(e.event_date)}</span>` : ''}
@@ -2438,7 +2439,7 @@
                 }
 
                 list.innerHTML = data.map(c => `
-                    <li class="announcement-item">
+                    <li class="announcement-item" onclick="showUpcomingCourseDetail(${JSON.stringify(c).replace(/"/g,'&quot;')})" style="cursor:pointer">
                         <h4>${c.title}</h4>
                         <div class="meta">
                             ${c.start_date ? `<span><i class="far fa-calendar"></i> ${formatDate(c.start_date)}</span>` : ''}
@@ -2503,6 +2504,39 @@
                 document.getElementById('navMenu').classList.remove('active');
             });
         });
+
+
+        function showUpcomingEventDetail(e) {
+            openModal(
+                `<i class="fas fa-calendar-alt"></i> <span>${e.title}</span>`,
+                `
+                ${e.image_url ? `<img src="${e.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                <div class="modal-meta">
+                    ${e.event_date ? `<span><i class="far fa-calendar"></i> ${formatDate(e.event_date)}</span>` : ''}
+                    ${e.location ? `<span><i class="fas fa-map-marker-alt"></i> ${e.location}</span>` : ''}
+                </div>
+                ${e.description ? `<div class="modal-text">${e.description}</div>` : ''}
+                ${buildGallery([e.gallery_1, e.gallery_2, e.gallery_3, e.gallery_4, e.gallery_5].filter(Boolean))}
+                `
+            );
+        }
+
+        function showUpcomingCourseDetail(c) {
+            openModal(
+                `<i class="fas fa-book-open"></i> <span>${c.title}</span>`,
+                `
+                ${c.image_url ? `<img src="${c.image_url}" class="modal-img" onerror="this.style.display='none'">` : ''}
+                <div class="modal-meta">
+                    ${c.start_date ? `<span><i class="far fa-calendar"></i> ${formatDate(c.start_date)}</span>` : ''}
+                    ${c.instructor ? `<span><i class="fas fa-user-tie"></i> ${c.instructor}</span>` : ''}
+                    ${c.duration ? `<span><i class="fas fa-clock"></i> ${c.duration}</span>` : ''}
+                    ${c.location ? `<span><i class="fas fa-map-marker-alt"></i> ${c.location}</span>` : ''}
+                </div>
+                ${c.description ? `<div class="modal-text">${c.description}</div>` : ''}
+                ${buildGallery([c.gallery_1, c.gallery_2, c.gallery_3, c.gallery_4, c.gallery_5].filter(Boolean))}
+                `
+            );
+        }
 
         // ============================================================
         // Initialize
