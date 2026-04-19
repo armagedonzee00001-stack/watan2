@@ -1928,6 +1928,15 @@
                         ${news?.image_url ? `<img src="${news.image_url}" class="image-preview">` : ''}
                         <input type="hidden" id="newsImageUrl" value="${news?.image_url || ''}">
                     </div>
+                    <div class="form-group">
+                        <label>صور إضافية (حتى 5 صور)</label>
+                        ${[1,2,3,4,5].map(i => `
+                        <div style="margin-bottom:8px">
+                            <input type="file" accept="image/*" id="newsGallery${i}" class="form-input" style="margin-bottom:4px">
+                            ${news?.[`gallery_${i}`] ? `<img src="${news[`gallery_${i}`]}" class="image-preview" style="height:60px">` : ''}
+                            <input type="hidden" id="newsGalleryUrl${i}" value="${news?.[`gallery_${i}`] || ''}">
+                        </div>`).join('')}
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>
@@ -1965,6 +1974,14 @@
                 try { imageUrl = await uploadImage(file, 'news'); } catch (e) {}
             }
 
+            const newsGallery = {};
+            for (let i=1;i<=5;i++) {
+                let u = document.getElementById(`newsGalleryUrl${i}`)?.value||null;
+                const f = document.getElementById(`newsGallery${i}`)?.files[0];
+                if(f){try{u=await uploadImage(f,'news/gallery');}catch(e){}}
+                newsGallery[`gallery_${i}`]=u||null;
+            }
+
             const payload = {
                 title: document.getElementById('newsTitle').value.trim(),
                 summary: document.getElementById('newsSummary').value.trim(),
@@ -1972,6 +1989,7 @@
                 category: document.getElementById('newsCategory').value.trim() || 'عام',
                 news_date: document.getElementById('newsDate').value || new Date().toISOString().slice(0,10),
                 image_url: imageUrl || null,
+                ...newsGallery,
                 is_featured: document.getElementById('newsFeatured').checked,
                 status: document.getElementById('newsStatus').value,
                 updated_at: new Date().toISOString()
@@ -2038,6 +2056,21 @@
                         <label>المكان</label>
                         <input type="text" class="form-input" id="upEvLocation" value="${escapeAttr(ev?.location || '')}">
                     </div>
+                    <div class="form-group">
+                        <label>الصورة الرئيسية</label>
+                        <input type="file" accept="image/*" id="upEvImage" class="form-input">
+                        ${ev?.image_url ? `<img src="${ev.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="upEvImageUrl" value="${ev?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>صور إضافية (حتى 5 صور)</label>
+                        ${[1,2,3,4,5].map(i => `
+                        <div style="margin-bottom:8px">
+                            <input type="file" accept="image/*" id="upEvGallery${i}" class="form-input" style="margin-bottom:4px">
+                            ${ev?.[`gallery_${i}`] ? `<img src="${ev[`gallery_${i}`]}" class="image-preview" style="height:60px">` : ''}
+                            <input type="hidden" id="upEvGalleryUrl${i}" value="${ev?.[`gallery_${i}`] || ''}">
+                        </div>`).join('')}
+                    </div>
                 </form>
             `;
 
@@ -2054,11 +2087,24 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
+            let upEvImageUrl = document.getElementById('upEvImageUrl').value;
+            const upEvFile = document.getElementById('upEvImage').files[0];
+            if(upEvFile){try{upEvImageUrl=await uploadImage(upEvFile,'upcoming-events');}catch(e){}}
+            const upEvGallery={};
+            for(let i=1;i<=5;i++){
+                let u=document.getElementById(`upEvGalleryUrl${i}`)?.value||null;
+                const f=document.getElementById(`upEvGallery${i}`)?.files[0];
+                if(f){try{u=await uploadImage(f,'upcoming-events/gallery');}catch(e){}}
+                upEvGallery[`gallery_${i}`]=u||null;
+            }
+
             const payload = {
                 title: document.getElementById('upEvTitle').value.trim(),
                 description: document.getElementById('upEvDesc').value.trim(),
                 event_date: document.getElementById('upEvDate').value || null,
                 location: document.getElementById('upEvLocation').value.trim(),
+                image_url: upEvImageUrl || null,
+                ...upEvGallery,
                 updated_at: new Date().toISOString()
             };
 
@@ -2135,6 +2181,21 @@
                             <input type="text" class="form-input" id="upCrLocation" value="${escapeAttr(course?.location || '')}">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label>الصورة الرئيسية</label>
+                        <input type="file" accept="image/*" id="upCrImage" class="form-input">
+                        ${course?.image_url ? `<img src="${course.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="upCrImageUrl" value="${course?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>صور إضافية (حتى 5 صور)</label>
+                        ${[1,2,3,4,5].map(i => `
+                        <div style="margin-bottom:8px">
+                            <input type="file" accept="image/*" id="upCrGallery${i}" class="form-input" style="margin-bottom:4px">
+                            ${course?.[`gallery_${i}`] ? `<img src="${course[`gallery_${i}`]}" class="image-preview" style="height:60px">` : ''}
+                            <input type="hidden" id="upCrGalleryUrl${i}" value="${course?.[`gallery_${i}`] || ''}">
+                        </div>`).join('')}
+                    </div>
                 </form>
             `;
 
@@ -2151,6 +2212,17 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
+            let upCrImageUrl = document.getElementById('upCrImageUrl').value;
+            const upCrFile = document.getElementById('upCrImage').files[0];
+            if(upCrFile){try{upCrImageUrl=await uploadImage(upCrFile,'upcoming-courses');}catch(e){}}
+            const upCrGallery={};
+            for(let i=1;i<=5;i++){
+                let u=document.getElementById(`upCrGalleryUrl${i}`)?.value||null;
+                const f=document.getElementById(`upCrGallery${i}`)?.files[0];
+                if(f){try{u=await uploadImage(f,'upcoming-courses/gallery');}catch(e){}}
+                upCrGallery[`gallery_${i}`]=u||null;
+            }
+
             const payload = {
                 title: document.getElementById('upCrTitle').value.trim(),
                 description: document.getElementById('upCrDesc').value.trim(),
@@ -2158,6 +2230,8 @@
                 duration: document.getElementById('upCrDuration').value.trim(),
                 start_date: document.getElementById('upCrStartDate').value || null,
                 location: document.getElementById('upCrLocation').value.trim(),
+                image_url: upCrImageUrl || null,
+                ...upCrGallery,
                 updated_at: new Date().toISOString()
             };
 
