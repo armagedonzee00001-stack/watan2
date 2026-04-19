@@ -1575,7 +1575,7 @@
         const SUPABASE_URL = 'https://wxyvibppnhtmcbebjptv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_YUuTaCVyM1Gsv_sjEUqg7w_Rzc96Ezm';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
         // Toast
@@ -1610,7 +1610,7 @@
         // ============================================================
         async function loadSiteConfig() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('site_config')
                     .select('*')
                     .eq('id', 1)
@@ -1658,7 +1658,7 @@
         // ============================================================
         async function loadNewMembers() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('new_members')
                     .select('*')
                     .eq('is_active', true)
@@ -1697,10 +1697,10 @@
         async function loadStats() {
             try {
                 const [activities, courses, meetings, members] = await Promise.all([
-                    supabase.from('activities').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                    supabase.from('courses').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                    supabase.from('meetings').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                    supabase.from('new_members').select('*', { count: 'exact', head: true }).eq('is_active', true)
+                    supabaseClient.from('activities').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                    supabaseClient.from('courses').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                    supabaseClient.from('meetings').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                    supabaseClient.from('new_members').select('*', { count: 'exact', head: true }).eq('is_active', true)
                 ]);
 
                 animateCount('countActivities', activities.count || 0);
@@ -1734,7 +1734,7 @@
         // ============================================================
         async function loadNews() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('news')
                     .select('*')
                     .eq('status', 'published')
@@ -1782,7 +1782,7 @@
         }
 
         async function showNewsDetail(id) {
-            const { data } = await supabase.from('news').select('*').eq('id', id).single();
+            const { data } = await supabaseClient.from('news').select('*').eq('id', id).single();
             if (!data) return;
             alert(`${data.title}\n\n${data.content || data.summary}`);
         }
@@ -1792,7 +1792,7 @@
         // ============================================================
         async function loadUpcomingEvents() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('upcoming_events')
                     .select('*')
                     .order('event_date', { ascending: true })
@@ -1829,7 +1829,7 @@
         // ============================================================
         async function loadUpcomingCourses() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('upcoming_courses')
                     .select('*')
                     .order('start_date', { ascending: true })
@@ -1882,7 +1882,7 @@
             };
 
             try {
-                const { error } = await supabase.from('join_requests').insert([formData]);
+                const { error } = await supabaseClient.from('join_requests').insert([formData]);
                 
                 if (error) throw error;
                 
