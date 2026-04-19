@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>اختبار</title>
+<style>
+body{font-family:Arial;background:#0A0A0A;color:#fff;padding:40px;text-align:center}
+input,button{padding:15px;font-size:18px;margin:10px;border-radius:8px;border:none;width:250px;display:block;margin:10px auto}
+input{background:#1a1a1a;color:#fff;border:1px solid #5C0F1F}
+button{background:#5C0F1F;color:#fff;cursor:pointer;font-weight:bold}
+#result{margin-top:30px;padding:20px;border-radius:8px;font-size:20px}
+</style>
+</head>
+<body>
+<h1>اختبار الدخول البسيط</h1>
+<input type="text" id="u" placeholder="اسم المستخدم">
+<input type="password" id="p" placeholder="كلمة المرور">
+<button id="btn">تسجيل الدخول</button>
+<div id="result"></div>
+
+<script>
+function doLogin() {
+    var u = document.getElementById('u').value;
+    var p = document.getElementById('p').value;
+    var r = document.getElementById('result');
+    if (u === 'admin' && p === 'admin123') {
+        r.style.background = '#16a34a';
+        r.innerHTML = '✅ الدخول نجح! الـ JavaScript شغال تمام.<br>دلوقتي افتح admin-final.html';
+    } else {
+        r.style.background = '#dc2626';
+        r.innerHTML = '❌ البيانات غلط. جرّب: admin / admin123';
+    }
+}
+document.getElementById('btn').addEventListener('click', doLogin);
+document.getElementById('u').addEventListener('keypress', function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('p').addEventListener('keypress', function(e){ if(e.key==='Enter') doLogin(); });
+
+// رسالة تأكيد إن الـ JS شغال أصلاً
+window.addEventListener('load', function(){
+    document.getElementById('result').style.background = '#333';
+    document.getElementById('result').innerHTML = '🟢 الـ JavaScript شغال. اكتب: admin / admin123';
+});
+</script>
+</body>
+</html>
