@@ -628,15 +628,8 @@
 </head>
 <body>
 
-    <!-- Check login - redirect to login.html if not logged in -->
-    <script>
-        if (sessionStorage.getItem('mostafa_admin_logged_in') !== 'yes') {
-            window.location.replace('login.html');
-        }
-    </script>
-
-    <!-- Login Screen (hidden - we use login.html now) -->
-    <div class="login-screen" id="loginScreen" style="display:none;">
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
         <div class="login-box">
             <div class="login-logo"><i class="fas fa-shield-alt"></i></div>
             <h1>لوحة التحكم</h1>
@@ -1247,31 +1240,33 @@
             if (confirm('هل تريد تسجيل الخروج؟')) {
                 sessionStorage.removeItem('mostafa_admin_logged_in');
                 localStorage.removeItem('admin_user');
-                window.location.replace('login.html');
+                location.reload();
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // تأكد من تسجيل الدخول
-            if (sessionStorage.getItem('mostafa_admin_logged_in') !== 'yes') {
-                window.location.replace('login.html');
-                return;
-            }
+            // ربط زر الدخول و Enter
+            const loginBtn = document.getElementById('loginBtn');
+            const userInput = document.getElementById('loginUsername');
+            const passInput = document.getElementById('loginPassword');
+            if (loginBtn) loginBtn.addEventListener('click', login);
+            if (userInput) userInput.addEventListener('keypress', function(e){ if(e.key==='Enter') login(); });
+            if (passInput) passInput.addEventListener('keypress', function(e){ if(e.key==='Enter') login(); });
             
-            // امسح أي بيانات قديمة
+            // امسح أي بيانات قديمة فاسدة
             localStorage.removeItem('admin_user');
             
-            // عيّن المستخدم الحالي
-            currentUser = {
-                username: 'admin',
-                full_name: 'مدير الموقع',
-                role: 'super_admin'
-            };
-            
-            // خفّي شاشة الدخول واعرض لوحة التحكم
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminWrap').classList.add('active');
-            loadDashboard();
+            // لو المستخدم سجل دخول قبل كده في نفس الـ session
+            if (sessionStorage.getItem('mostafa_admin_logged_in') === 'yes') {
+                currentUser = {
+                    username: 'admin',
+                    full_name: 'مدير الموقع',
+                    role: 'super_admin'
+                };
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminWrap').classList.add('active');
+                loadDashboard();
+            }
         });
 
         // ==================== Navigation ====================
