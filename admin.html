@@ -700,11 +700,6 @@
                     <i class="fas fa-user-check"></i><span>طلبات الانضمام</span>
                     <span class="badge" id="pendingRequestsBadge" style="display:none;">0</span>
                 </li>
-
-                <div class="nav-divider">النظام</div>
-                <li class="nav-item" data-page="admin-users" onclick="showPage('admin-users')">
-                    <i class="fas fa-user-shield"></i><span>مستخدمو الأدمن</span>
-                </li>
             </ul>
 
             <div class="sidebar-footer">
@@ -1207,89 +1202,55 @@
         }
 
         // ==================== Login ====================
-        // حساب الأدمن الافتراضي (hardcoded fallback - يضمن الدخول يشتغل دايماً)
-        const DEFAULT_ADMIN = {
-            username: 'admin',
-            password: 'admin123',
-            user: {
-                id: 'default-admin-001',
-                username: 'admin',
-                full_name: 'مدير الموقع',
-                role: 'super_admin',
-                is_active: true
-            }
-        };
+        // ==================== Login (Hardcoded) ====================
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
 
-        async function login(e) {
+        function login(e) {
             e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
-
+            
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            let user = null;
-
-            // (1) جرّب الدخول من قاعدة البيانات
-            try {
-                const { data } = await supabase
-                    .from('admin_users')
-                    .select('*')
-                    .eq('username', username)
-                    .eq('password', password)
-                    .eq('is_active', true)
-                    .maybeSingle();
-                if (data) user = data;
-            } catch (e) { /* تجاهل - هنعتمد على الـ fallback */ }
-
-            // (2) Fallback: الأدمن الافتراضي (hardcoded)
-            if (!user && username === DEFAULT_ADMIN.username && password === DEFAULT_ADMIN.password) {
-                user = DEFAULT_ADMIN.user;
-            }
-
-            // (3) لو مفيش حد، معناها بيانات غلط
-            if (!user) {
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                currentUser = {
+                    username: 'admin',
+                    full_name: 'مدير الموقع',
+                    role: 'super_admin'
+                };
+                sessionStorage.setItem('mostafa_admin_logged_in', 'yes');
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminWrap').classList.add('active');
+                loadDashboard();
+                showToast('مرحباً بك', 'success');
+            } else {
                 showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
-                return;
             }
-
-            currentUser = user;
-            localStorage.setItem('admin_user', JSON.stringify(user));
-
-            // حدّث last_login لو مش الأدمن الافتراضي
-            if (user.id !== 'default-admin-001') {
-                try {
-                    await supabase.from('admin_users').update({ last_login: new Date().toISOString() }).eq('id', user.id);
-                } catch (e) {}
-            }
-
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminWrap').classList.add('active');
-            loadDashboard();
-            showToast(`مرحباً ${user.full_name || user.username}`, 'success');
+            return false;
         }
 
         function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
+                sessionStorage.removeItem('mostafa_admin_logged_in');
                 localStorage.removeItem('admin_user');
                 location.reload();
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('admin_user');
-            if (saved) {
-                try {
-                    currentUser = JSON.parse(saved);
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('adminWrap').classList.add('active');
-                    loadDashboard();
-                } catch (e) {
-                    localStorage.removeItem('admin_user');
-                }
+            // امسح أي بيانات قديمة فاسدة
+            localStorage.removeItem('admin_user');
+            
+            // لو المستخدم سجل دخول قبل كده في نفس الـ session
+            if (sessionStorage.getItem('mostafa_admin_logged_in') === 'yes') {
+                currentUser = {
+                    username: 'admin',
+                    full_name: 'مدير الموقع',
+                    role: 'super_admin'
+                };
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminWrap').classList.add('active');
+                loadDashboard();
             }
         });
 
