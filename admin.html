@@ -1511,10 +1511,19 @@
                         <input type="text" class="form-input" id="actLocation" value="${escapeAttr(activity?.location || '')}">
                     </div>
                     <div class="form-group">
-                        <label>الصورة</label>
+                        <label>الصورة الرئيسية</label>
                         <input type="file" accept="image/*" id="actImage" class="form-input">
                         ${activity?.image_url ? `<img src="${activity.image_url}" class="image-preview">` : ''}
                         <input type="hidden" id="actImageUrl" value="${activity?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>صور إضافية (حتى 5 صور)</label>
+                        ${[1,2,3,4,5].map(i => `
+                        <div style="margin-bottom:8px">
+                            <input type="file" accept="image/*" id="actGallery${i}" class="form-input" style="margin-bottom:4px">
+                            ${activity?.[`gallery_${i}`] ? `<img src="${activity[`gallery_${i}`]}" class="image-preview" style="height:60px">` : ''}
+                            <input type="hidden" id="actGalleryUrl${i}" value="${activity?.[`gallery_${i}`] || ''}">
+                        </div>`).join('')}
                     </div>
                     <div class="form-group">
                         <label>الحالة</label>
@@ -1545,6 +1554,15 @@
                 try { imageUrl = await uploadImage(file, 'activities'); } catch (e) {}
             }
 
+            // رفع صور الجاليري
+            const galleryUrls = {};
+            for (let i = 1; i <= 5; i++) {
+                let gUrl = document.getElementById(`actGalleryUrl${i}`)?.value || null;
+                const gFile = document.getElementById(`actGallery${i}`)?.files[0];
+                if (gFile) { try { gUrl = await uploadImage(gFile, 'activities/gallery'); } catch(e){} }
+                galleryUrls[`gallery_${i}`] = gUrl || null;
+            }
+
             const payload = {
                 title: document.getElementById('actTitle').value.trim(),
                 description: document.getElementById('actDesc').value.trim(),
@@ -1552,6 +1570,7 @@
                 activity_date: document.getElementById('actDate').value || null,
                 location: document.getElementById('actLocation').value.trim(),
                 image_url: imageUrl || null,
+                ...galleryUrls,
                 status: document.getElementById('actStatus').value,
                 updated_at: new Date().toISOString()
             };
@@ -1691,6 +1710,16 @@
                 seats: parseInt(document.getElementById('crsSeats').value) || 0,
                 price: document.getElementById('crsPrice').value.trim() || 'مجاني',
                 image_url: imageUrl || null,
+                ...(await (async () => {
+                    const g = {};
+                    for (let i=1;i<=5;i++) {
+                        let u = document.getElementById(`crsGalleryUrl${i}`)?.value||null;
+                        const f = document.getElementById(`crsGallery${i}`)?.files[0];
+                        if(f){try{u=await uploadImage(f,'courses/gallery');}catch(e){}}
+                        g[`gallery_${i}`]=u||null;
+                    }
+                    return g;
+                })()),
                 status: document.getElementById('crsStatus').value,
                 updated_at: new Date().toISOString()
             };
@@ -1763,6 +1792,21 @@
                         <input type="text" class="form-input" id="mtgAttendees" placeholder="مثلاً: أعضاء المجلس" value="${escapeAttr(meeting?.attendees || '')}">
                     </div>
                     <div class="form-group">
+                        <label>الصورة الرئيسية</label>
+                        <input type="file" accept="image/*" id="mtgImage" class="form-input">
+                        ${meeting?.image_url ? `<img src="${meeting.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="mtgImageUrl" value="${meeting?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>صور إضافية (حتى 5 صور)</label>
+                        ${[1,2,3,4,5].map(i => `
+                        <div style="margin-bottom:8px">
+                            <input type="file" accept="image/*" id="mtgGallery${i}" class="form-input" style="margin-bottom:4px">
+                            ${meeting?.[`gallery_${i}`] ? `<img src="${meeting[`gallery_${i}`]}" class="image-preview" style="height:60px">` : ''}
+                            <input type="hidden" id="mtgGalleryUrl${i}" value="${meeting?.[`gallery_${i}`] || ''}">
+                        </div>`).join('')}
+                    </div>
+                    <div class="form-group">
                         <label>الحالة</label>
                         <select class="form-select" id="mtgStatus">
                             <option value="published" ${meeting?.status !== 'draft' ? 'selected' : ''}>منشور</option>
@@ -1785,12 +1829,26 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
+            let mtgImageUrl = document.getElementById('mtgImageUrl').value;
+            const mtgFile = document.getElementById('mtgImage').files[0];
+            if (mtgFile) { try { mtgImageUrl = await uploadImage(mtgFile, 'meetings'); } catch(e){} }
+
+            const mtgGallery = {};
+            for (let i=1;i<=5;i++) {
+                let u = document.getElementById(`mtgGalleryUrl${i}`)?.value||null;
+                const f = document.getElementById(`mtgGallery${i}`)?.files[0];
+                if(f){try{u=await uploadImage(f,'meetings/gallery');}catch(e){}}
+                mtgGallery[`gallery_${i}`]=u||null;
+            }
+
             const payload = {
                 title: document.getElementById('mtgTitle').value.trim(),
                 description: document.getElementById('mtgDesc').value.trim(),
                 meeting_date: document.getElementById('mtgDate').value || null,
                 location: document.getElementById('mtgLocation').value.trim(),
                 attendees: document.getElementById('mtgAttendees').value.trim(),
+                image_url: mtgImageUrl || null,
+                ...mtgGallery,
                 status: document.getElementById('mtgStatus').value,
                 updated_at: new Date().toISOString()
             };
