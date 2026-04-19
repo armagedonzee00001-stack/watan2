@@ -1284,7 +1284,7 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="#" class="nav-logo">
-                <img src="" id="navLogo" alt="شعار القيادة" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="" id="navLogo" alt="شعار القيادة" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div style="display:none; width:55px; height:55px; border-radius:50%; background:var(--burgundy); align-items:center; justify-content:center; color:white; font-size:24px;">
                     <i class="fas fa-shield-alt"></i>
                 </div>
@@ -1350,7 +1350,7 @@
             </div>
 
             <div class="hero-image-wrap">
-                <img src="" id="heroImage" alt="القائد مصطفى ياسين الدن" class="hero-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="" id="heroImage" alt="القائد مصطفى ياسين الدن" class="hero-image" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="hero-image-placeholder">
                     <i class="fas fa-image"></i>
                     <p>صورة الافتتاحية</p>
@@ -1485,7 +1485,7 @@
             </div>
 
             <div class="big-logo-container">
-                <img src="" id="bigLogo" alt="شعار القيادة" class="big-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="" id="bigLogo" alt="شعار القيادة" class="big-logo" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="big-logo-placeholder" style="display:none;">
                     <i class="fas fa-shield-alt"></i>
                 </div>
@@ -1519,7 +1519,7 @@
     <footer>
         <div class="footer-container">
             <div class="footer-brand">
-                <img src="" id="footerLogo" alt="شعار" class="footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <img src="" id="footerLogo" alt="شعار" class="footer-logo" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="footer-logo-placeholder" style="display:none;">
                     <i class="fas fa-shield-alt"></i>
                 </div>
@@ -1624,12 +1624,24 @@
                 if (data.hero_description) document.getElementById('heroDescription').textContent = data.hero_description;
                 
                 // Images
-                if (data.hero_image_url) document.getElementById('heroImage').src = data.hero_image_url;
-                if (data.logo_url) {
-                    document.getElementById('navLogo').src = data.logo_url;
-                    document.getElementById('footerLogo').src = data.logo_url;
+                if (data.hero_image_url) {
+                    const heroImg = document.getElementById('heroImage');
+                    heroImg.src = data.hero_image_url;
+                    heroImg.style.display = 'block';
                 }
-                if (data.big_logo_url) document.getElementById('bigLogo').src = data.big_logo_url;
+                if (data.logo_url) {
+                    const navLogo = document.getElementById('navLogo');
+                    navLogo.src = data.logo_url;
+                    navLogo.style.display = 'block';
+                    const footerLogo = document.getElementById('footerLogo');
+                    footerLogo.src = data.logo_url;
+                    footerLogo.style.display = 'block';
+                }
+                if (data.big_logo_url) {
+                    const bigLogo = document.getElementById('bigLogo');
+                    bigLogo.src = data.big_logo_url;
+                    bigLogo.style.display = 'block';
+                }
 
                 // Footer
                 if (data.about_text) document.getElementById('footerAbout').textContent = data.about_text;
