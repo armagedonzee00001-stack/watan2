@@ -635,7 +635,7 @@
             <h1>لوحة التحكم</h1>
             <p>الموقع الرسمي | القائد مصطفى ياسين الدن</p>
             
-            <div>
+            <form onsubmit="login(event)">
                 <div class="form-group">
                     <label>اسم المستخدم</label>
                     <input type="text" class="form-input" id="loginUsername" required placeholder="admin">
@@ -644,11 +644,15 @@
                     <label>كلمة المرور</label>
                     <input type="password" class="form-input" id="loginPassword" required placeholder="••••••••">
                 </div>
-                <button type="button" class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;" id="loginBtn">
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i>
                     تسجيل الدخول
                 </button>
-            </div>
+            </form>
+            
+            <p style="margin-top:25px; font-size:13px; color:var(--text-muted)">
+                <i class="fas fa-info-circle"></i> الافتراضي: admin / admin123
+            </p>
         </div>
     </div>
 
@@ -699,6 +703,11 @@
                 <li class="nav-item" data-page="join-requests" onclick="showPage('join-requests')">
                     <i class="fas fa-user-check"></i><span>طلبات الانضمام</span>
                     <span class="badge" id="pendingRequestsBadge" style="display:none;">0</span>
+                </li>
+
+                <div class="nav-divider">النظام</div>
+                <li class="nav-item" data-page="admin-users" onclick="showPage('admin-users')">
+                    <i class="fas fa-user-shield"></i><span>مستخدمو الأدمن</span>
                 </li>
             </ul>
 
@@ -1158,19 +1167,10 @@
     </div>
 
     <script>
-        // ==================== Supabase (Safe Init) ====================
+        // ==================== Supabase ====================
         const SUPABASE_URL = 'https://wxyvibppnhtmcbebjptv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_YUuTaCVyM1Gsv_sjEUqg7w_Rzc96Ezm';
-        let supabase = null;
-        try {
-            if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } else {
-                console.warn('⚠️ Supabase SDK لم يتم تحميله - بعض المميزات قد لا تعمل');
-            }
-        } catch (err) {
-            console.error('❌ فشل تحميل Supabase:', err);
-        }
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
         let editingId = null;
@@ -1211,61 +1211,64 @@
         }
 
         // ==================== Login ====================
-        // ==================== Login (Hardcoded) ====================
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'admin123';
+        async function login(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
 
-        function login() {
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                currentUser = {
-                    username: 'admin',
-                    full_name: 'مدير الموقع',
-                    role: 'super_admin'
-                };
-                sessionStorage.setItem('mostafa_admin_logged_in', 'yes');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('admin_users')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .eq('is_active', true)
+                    .maybeSingle();
+
+                if (error || !data) {
+                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+                    return;
+                }
+
+                currentUser = data;
+                localStorage.setItem('admin_user', JSON.stringify(data));
+                await supabaseClient.from('admin_users').update({ last_login: new Date().toISOString() }).eq('id', data.id);
+
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminWrap').classList.add('active');
                 loadDashboard();
-                showToast('مرحباً بك', 'success');
-            } else {
-                showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                showToast(`مرحباً ${data.full_name || data.username}`, 'success');
+            } catch (err) {
+                showToast('حدث خطأ في الاتصال', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
             }
-            return false;
         }
 
         function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
-                sessionStorage.removeItem('mostafa_admin_logged_in');
                 localStorage.removeItem('admin_user');
                 location.reload();
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // ربط زر الدخول و Enter
-            const loginBtn = document.getElementById('loginBtn');
-            const userInput = document.getElementById('loginUsername');
-            const passInput = document.getElementById('loginPassword');
-            if (loginBtn) loginBtn.addEventListener('click', login);
-            if (userInput) userInput.addEventListener('keypress', function(e){ if(e.key==='Enter') login(); });
-            if (passInput) passInput.addEventListener('keypress', function(e){ if(e.key==='Enter') login(); });
-            
-            // امسح أي بيانات قديمة فاسدة
-            localStorage.removeItem('admin_user');
-            
-            // لو المستخدم سجل دخول قبل كده في نفس الـ session
-            if (sessionStorage.getItem('mostafa_admin_logged_in') === 'yes') {
-                currentUser = {
-                    username: 'admin',
-                    full_name: 'مدير الموقع',
-                    role: 'super_admin'
-                };
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminWrap').classList.add('active');
-                loadDashboard();
+            const saved = localStorage.getItem('admin_user');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('adminWrap').classList.add('active');
+                    loadDashboard();
+                } catch (e) {
+                    localStorage.removeItem('admin_user');
+                }
             }
         });
 
@@ -1299,12 +1302,12 @@
         // ==================== Dashboard ====================
         async function loadDashboard() {
             const counts = await Promise.all([
-                supabase.from('activities').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                supabase.from('courses').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                supabase.from('meetings').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                supabase.from('news').select('*', { count: 'exact', head: true }).eq('status', 'published'),
-                supabase.from('new_members').select('*', { count: 'exact', head: true }).eq('is_active', true),
-                supabase.from('join_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+                supabaseClient.from('activities').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabaseClient.from('courses').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabaseClient.from('meetings').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabaseClient.from('news').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabaseClient.from('new_members').select('*', { count: 'exact', head: true }).eq('is_active', true),
+                supabaseClient.from('join_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending')
             ]);
 
             document.getElementById('dashActivities').textContent = counts[0].count || 0;
@@ -1329,7 +1332,7 @@
             const ext = file.name.split('.').pop();
             const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
             
-            const { data, error } = await supabase.storage
+            const { data, error } = await supabaseClient.storage
                 .from('site-media')
                 .upload(fileName, file, { upsert: false });
             
@@ -1338,7 +1341,7 @@
                 throw error;
             }
 
-            const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(fileName);
+            const { data: urlData } = supabaseClient.storage.from('site-media').getPublicUrl(fileName);
             return urlData.publicUrl;
         }
 
@@ -1358,7 +1361,7 @@
 
         // ==================== Site Config ====================
         async function loadSiteConfig() {
-            const { data } = await supabase.from('site_config').select('*').eq('id', 1).maybeSingle();
+            const { data } = await supabaseClient.from('site_config').select('*').eq('id', 1).maybeSingle();
             if (!data) return;
             
             document.getElementById('cfgHeroTitle').value = data.hero_title || '';
@@ -1415,7 +1418,7 @@
                 updated_at: new Date().toISOString()
             };
 
-            const { error } = await supabase.from('site_config').update(payload).eq('id', 1);
+            const { error } = await supabaseClient.from('site_config').update(payload).eq('id', 1);
             
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ جميع الإعدادات';
@@ -1440,7 +1443,7 @@
         // ==================== Generic Delete ====================
         async function deleteItem(table, id, reloadFn) {
             if (!confirm('هل أنت متأكد من الحذف؟')) return;
-            const { error } = await supabase.from(table).delete().eq('id', id);
+            const { error } = await supabaseClient.from(table).delete().eq('id', id);
             if (error) showToast('خطأ: ' + error.message, 'error');
             else {
                 showToast('تم الحذف بنجاح', 'success');
@@ -1450,7 +1453,7 @@
 
         // ==================== Activities ====================
         async function loadActivities() {
-            const { data, error } = await supabase.from('activities').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('activities').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('activitiesTable');
             
             if (error || !data || data.length === 0) {
@@ -1554,8 +1557,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('activities').update(payload).eq('id', editingId)
-                : await supabase.from('activities').insert([payload]);
+                ? await supabaseClient.from('activities').update(payload).eq('id', editingId)
+                : await supabaseClient.from('activities').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -1570,7 +1573,7 @@
 
         // ==================== Courses ====================
         async function loadCourses() {
-            const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('courses').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('coursesTable');
             
             if (error || !data || data.length === 0) {
@@ -1693,8 +1696,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('courses').update(payload).eq('id', editingId)
-                : await supabase.from('courses').insert([payload]);
+                ? await supabaseClient.from('courses').update(payload).eq('id', editingId)
+                : await supabaseClient.from('courses').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -1709,7 +1712,7 @@
 
         // ==================== Meetings ====================
         async function loadMeetings() {
-            const { data, error } = await supabase.from('meetings').select('*').order('meeting_date', { ascending: false });
+            const { data, error } = await supabaseClient.from('meetings').select('*').order('meeting_date', { ascending: false });
             const tbody = document.getElementById('meetingsTable');
             
             if (error || !data || data.length === 0) {
@@ -1793,8 +1796,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('meetings').update(payload).eq('id', editingId)
-                : await supabase.from('meetings').insert([payload]);
+                ? await supabaseClient.from('meetings').update(payload).eq('id', editingId)
+                : await supabaseClient.from('meetings').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -1809,7 +1812,7 @@
 
         // ==================== News ====================
         async function loadNews() {
-            const { data, error } = await supabase.from('news').select('*').order('news_date', { ascending: false });
+            const { data, error } = await supabaseClient.from('news').select('*').order('news_date', { ascending: false });
             const tbody = document.getElementById('newsTable');
             
             if (error || !data || data.length === 0) {
@@ -1917,8 +1920,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('news').update(payload).eq('id', editingId)
-                : await supabase.from('news').insert([payload]);
+                ? await supabaseClient.from('news').update(payload).eq('id', editingId)
+                : await supabaseClient.from('news').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -1933,7 +1936,7 @@
 
         // ==================== Upcoming Events ====================
         async function loadUpcomingEvents() {
-            const { data, error } = await supabase.from('upcoming_events').select('*').order('event_date', { ascending: true });
+            const { data, error } = await supabaseClient.from('upcoming_events').select('*').order('event_date', { ascending: true });
             const tbody = document.getElementById('upcomingEventsTable');
             
             if (error || !data || data.length === 0) {
@@ -2002,8 +2005,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('upcoming_events').update(payload).eq('id', editingId)
-                : await supabase.from('upcoming_events').insert([payload]);
+                ? await supabaseClient.from('upcoming_events').update(payload).eq('id', editingId)
+                : await supabaseClient.from('upcoming_events').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -2018,7 +2021,7 @@
 
         // ==================== Upcoming Courses ====================
         async function loadUpcomingCourses() {
-            const { data, error } = await supabase.from('upcoming_courses').select('*').order('start_date', { ascending: true });
+            const { data, error } = await supabaseClient.from('upcoming_courses').select('*').order('start_date', { ascending: true });
             const tbody = document.getElementById('upcomingCoursesTable');
             
             if (error || !data || data.length === 0) {
@@ -2101,8 +2104,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('upcoming_courses').update(payload).eq('id', editingId)
-                : await supabase.from('upcoming_courses').insert([payload]);
+                ? await supabaseClient.from('upcoming_courses').update(payload).eq('id', editingId)
+                : await supabaseClient.from('upcoming_courses').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -2117,7 +2120,7 @@
 
         // ==================== New Members ====================
         async function loadMembers() {
-            const { data, error } = await supabase.from('new_members').select('*').order('display_order', { ascending: true }).order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('new_members').select('*').order('display_order', { ascending: true }).order('created_at', { ascending: false });
             const tbody = document.getElementById('membersTable');
             
             if (error || !data || data.length === 0) {
@@ -2212,8 +2215,8 @@
             };
 
             const { error } = editingId
-                ? await supabase.from('new_members').update(payload).eq('id', editingId)
-                : await supabase.from('new_members').insert([payload]);
+                ? await supabaseClient.from('new_members').update(payload).eq('id', editingId)
+                : await supabaseClient.from('new_members').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
@@ -2228,7 +2231,7 @@
 
         // ==================== Join Requests ====================
         async function loadRequests() {
-            const { data, error } = await supabase.from('join_requests').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('join_requests').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('requestsTable');
             
             if (error || !data || data.length === 0) {
@@ -2275,7 +2278,7 @@
         }
 
         async function updateRequestStatus(id, status) {
-            const { error } = await supabase.from('join_requests').update({ status }).eq('id', id);
+            const { error } = await supabaseClient.from('join_requests').update({ status }).eq('id', id);
             if (error) showToast('خطأ: ' + error.message, 'error');
             else {
                 showToast(status === 'approved' ? 'تم قبول الطلب' : 'تم رفض الطلب', 'success');
@@ -2286,7 +2289,7 @@
 
         // ==================== Admin Users ====================
         async function loadAdmins() {
-            const { data, error } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('admin_users').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('adminsTable');
             
             if (error || !data || data.length === 0) {
@@ -2370,8 +2373,8 @@
             if (password) payload.password = password;
 
             const { error } = editingId
-                ? await supabase.from('admin_users').update(payload).eq('id', editingId)
-                : await supabase.from('admin_users').insert([payload]);
+                ? await supabaseClient.from('admin_users').update(payload).eq('id', editingId)
+                : await supabaseClient.from('admin_users').insert([payload]);
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
