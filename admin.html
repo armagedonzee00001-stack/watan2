@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | القائد مصطفى ياسين الدن</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --burgundy: #5C0F1F;
+            --burgundy-dark: #3D0812;
+            --burgundy-light: #8B1538;
+            --black: #0A0A0A;
+            --black-light: #1A1A1A;
+            --white-soft: #F5F5F0;
+            --gold-accent: #C9A55C;
+            --text-light: #E8E8E8;
+            --text-muted: #B0B0B0;
+            --border-dark: rgba(92, 15, 31, 0.3);
+            --border: #333;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--black);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        /* Login */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(92, 15, 31, 0.3), transparent 60%),
+                radial-gradient(circle at 70% 70%, rgba(139, 21, 56, 0.2), transparent 60%),
+                var(--black);
+        }
+
+        .login-box {
+            background: linear-gradient(145deg, #1a0a0d, #0a0a0a);
+            border: 1px solid var(--burgundy);
+            border-radius: 20px;
+            padding: 50px 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(92, 15, 31, 0.3);
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            background: var(--burgundy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 44px;
+            border: 3px solid var(--gold-accent);
+            box-shadow: 0 0 40px rgba(139, 21, 56, 0.5);
+        }
+
+        .login-box h1 { color: var(--white-soft); font-size: 26px; margin-bottom: 10px; }
+        .login-box p { color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
+
+        /* Admin */
+        .admin-wrap { display: none; min-height: 100vh; }
+        .admin-wrap.active { display: grid; grid-template-columns: 280px 1fr; }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--black) 0%, var(--burgundy-dark) 100%);
+            border-left: 1px solid var(--border-dark);
+            padding: 25px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: var(--black); }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--burgundy); border-radius: 3px; }
+
+        .sidebar-header {
+            padding: 0 25px 25px;
+            border-bottom: 1px solid var(--border-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            width: 70px;
+            height: 70px;
+            background: var(--burgundy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            color: white;
+            font-size: 30px;
+            border: 2px solid var(--gold-accent);
+        }
+
+        .sidebar-header h3 { color: var(--white-soft); font-size: 16px; margin-bottom: 3px; }
+        .sidebar-header p { color: var(--gold-accent); font-size: 12px; }
+
+        .sidebar-nav { list-style: none; padding: 0 12px; }
+
+        .nav-item {
+            padding: 12px 18px;
+            margin-bottom: 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-light);
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14.5px;
+        }
+
+        .nav-item:hover { background: rgba(139, 21, 56, 0.15); color: var(--white-soft); }
+        .nav-item.active {
+            background: var(--burgundy);
+            color: white;
+            box-shadow: 0 4px 15px rgba(92, 15, 31, 0.4);
+        }
+
+        .nav-item i { width: 22px; text-align: center; font-size: 16px; }
+
+        .nav-item .badge {
+            margin-right: auto;
+            background: var(--gold-accent);
+            color: var(--black);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .nav-divider {
+            padding: 10px 18px 5px;
+            color: var(--burgundy-light);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 20px 18px;
+            border-top: 1px solid var(--border-dark);
+            margin-top: 20px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        .main-content { padding: 30px; overflow-y: auto; max-width: 100%; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-dark);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-header h1 {
+            color: var(--white-soft);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header h1 i { color: var(--burgundy-light); }
+        .page-header p { color: var(--text-muted); margin-top: 5px; font-size: 14px; }
+
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #1a0a0d, #0a0a0a);
+            border: 1px solid var(--border-dark);
+            border-radius: 14px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover { border-color: var(--burgundy-light); transform: translateY(-3px); }
+
+        .stat-card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            background: var(--burgundy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card-value {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--white-soft);
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stat-card-label { color: var(--text-muted); font-size: 14px; }
+
+        .panel {
+            background: linear-gradient(145deg, #1a0a0d, #0a0a0a);
+            border: 1px solid var(--border-dark);
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-dark);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            color: var(--white-soft);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header h2 i { color: var(--burgundy-light); }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .form-group label .required { color: var(--danger); }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 11px 14px;
+            background: var(--black);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white-soft);
+            font-family: inherit;
+            font-size: 14.5px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--burgundy-light);
+            box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+        }
+
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14.5px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--burgundy);
+            color: white;
+            border: 1px solid var(--burgundy-light);
+        }
+
+        .btn-primary:hover {
+            background: var(--burgundy-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 21, 56, 0.4);
+        }
+
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover { background: var(--black-light); border-color: var(--burgundy-light); }
+
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #15803d; }
+
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-dark);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th, td {
+            padding: 14px 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        th {
+            background: var(--black);
+            color: var(--gold-accent);
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        td { color: var(--text-light); font-size: 14px; }
+        tr:hover td { background: rgba(92, 15, 31, 0.1); }
+        tr:last-child td { border-bottom: none; }
+
+        .td-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-published, .status-approved {
+            background: rgba(22, 163, 74, 0.2);
+            color: #22c55e;
+            border: 1px solid #16a34a;
+        }
+
+        .status-draft, .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-rejected {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ef4444;
+            border: 1px solid #dc2626;
+        }
+
+        .td-image {
+            width: 55px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border-dark);
+        }
+
+        .td-image-placeholder {
+            width: 55px;
+            height: 55px;
+            border-radius: 8px;
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--burgundy-light);
+            border: 1px solid var(--border-dark);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: linear-gradient(145deg, #1a0a0d, #0a0a0a);
+            border: 1px solid var(--burgundy);
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            margin: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--black);
+            z-index: 2;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+
+        .modal-header h3 {
+            color: var(--white-soft);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h3 i { color: var(--burgundy-light); }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover { background: var(--danger); color: white; }
+
+        .modal-body { padding: 25px; }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            background: var(--black);
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--burgundy);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--black);
+        }
+
+        .upload-area:hover {
+            background: rgba(92, 15, 31, 0.1);
+            border-color: var(--burgundy-light);
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: var(--burgundy-light);
+            margin-bottom: 10px;
+        }
+
+        .upload-area input[type="file"] { display: none; }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid var(--border-dark);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: var(--black-light);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: 1px solid var(--burgundy);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 9999;
+            transition: transform 0.4s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: var(--success); }
+        .toast.success i { color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.error i { color: var(--danger); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+
+        .empty-state i {
+            font-size: 60px;
+            color: var(--burgundy-light);
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state p { font-size: 16px; }
+
+        .loading-cell { text-align: center; padding: 40px; color: var(--burgundy-light); }
+        .loading-cell i { font-size: 35px; animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .mobile-toggle {
+            display: none;
+            background: var(--burgundy);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 968px) {
+            .admin-wrap.active { grid-template-columns: 1fr; }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 280px;
+                z-index: 99;
+                transform: translateX(100%);
+                transition: transform 0.3s;
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { padding: 20px 15px; }
+            .mobile-toggle { display: block; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 22px; }
+            .stat-card-value { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo"><i class="fas fa-shield-alt"></i></div>
+            <h1>لوحة التحكم</h1>
+            <p>الموقع الرسمي | القائد مصطفى ياسين الدن</p>
+            
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" class="form-input" id="loginUsername" required placeholder="admin">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" class="form-input" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    تسجيل الدخول
+                </button>
+            </form>
+            
+            <p style="margin-top:25px; font-size:13px; color:var(--text-muted)">
+                <i class="fas fa-info-circle"></i> الافتراضي: admin / admin123
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-wrap" id="adminWrap">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-shield-alt"></i></div>
+                <h3>لوحة التحكم</h3>
+                <p>القائد مصطفى ياسين الدن</p>
+            </div>
+
+            <ul class="sidebar-nav">
+                <div class="nav-divider">الرئيسية</div>
+                <li class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-line"></i><span>الصفحة الرئيسية</span>
+                </li>
+                <li class="nav-item" data-page="site-config" onclick="showPage('site-config')">
+                    <i class="fas fa-cog"></i><span>إعدادات الموقع</span>
+                </li>
+
+                <div class="nav-divider">الأنشطة</div>
+                <li class="nav-item" data-page="activities" onclick="showPage('activities')">
+                    <i class="fas fa-flag"></i><span>الفاعليات والمبادرات</span>
+                </li>
+                <li class="nav-item" data-page="courses" onclick="showPage('courses')">
+                    <i class="fas fa-graduation-cap"></i><span>الدورات التدريبية</span>
+                </li>
+                <li class="nav-item" data-page="meetings" onclick="showPage('meetings')">
+                    <i class="fas fa-users"></i><span>الاجتماعات</span>
+                </li>
+
+                <div class="nav-divider">المحتوى</div>
+                <li class="nav-item" data-page="news" onclick="showPage('news')">
+                    <i class="fas fa-newspaper"></i><span>آخر المستجدات</span>
+                </li>
+                <li class="nav-item" data-page="upcoming-events" onclick="showPage('upcoming-events')">
+                    <i class="fas fa-calendar-alt"></i><span>الفعاليات القادمة</span>
+                </li>
+                <li class="nav-item" data-page="upcoming-courses" onclick="showPage('upcoming-courses')">
+                    <i class="fas fa-book-open"></i><span>الدورات القادمة</span>
+                </li>
+
+                <div class="nav-divider">الأعضاء</div>
+                <li class="nav-item" data-page="new-members" onclick="showPage('new-members')">
+                    <i class="fas fa-user-plus"></i><span>الأعضاء الجدد</span>
+                </li>
+                <li class="nav-item" data-page="join-requests" onclick="showPage('join-requests')">
+                    <i class="fas fa-user-check"></i><span>طلبات الانضمام</span>
+                    <span class="badge" id="pendingRequestsBadge" style="display:none;">0</span>
+                </li>
+
+                <div class="nav-divider">النظام</div>
+                <li class="nav-item" data-page="admin-users" onclick="showPage('admin-users')">
+                    <i class="fas fa-user-shield"></i><span>مستخدمو الأدمن</span>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard -->
+            <div class="page active" id="page-dashboard">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-chart-line"></i> الصفحة الرئيسية</h1>
+                        <p>نظرة عامة على أداء الموقع</p>
+                    </div>
+                    <a href="index.html" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-eye"></i> معاينة الموقع
+                    </a>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-flag"></i></div>
+                        <div class="stat-card-value" id="dashActivities">0</div>
+                        <div class="stat-card-label">فاعلية ومبادرة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="stat-card-value" id="dashCourses">0</div>
+                        <div class="stat-card-label">دورة تدريبية</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-card-value" id="dashMeetings">0</div>
+                        <div class="stat-card-label">اجتماع</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-newspaper"></i></div>
+                        <div class="stat-card-value" id="dashNews">0</div>
+                        <div class="stat-card-label">خبر منشور</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="stat-card-value" id="dashMembers">0</div>
+                        <div class="stat-card-label">عضو نشط</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="stat-card-value" id="dashPendingReq">0</div>
+                        <div class="stat-card-label">طلب انضمام معلق</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header"><h2><i class="fas fa-bolt"></i> إجراءات سريعة</h2></div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                        <button class="btn btn-primary" onclick="showPage('activities'); setTimeout(() => openActivityModal(), 200);">
+                            <i class="fas fa-plus"></i> إضافة فاعلية
+                        </button>
+                        <button class="btn btn-primary" onclick="showPage('courses'); setTimeout(() => openCourseModal(), 200);">
+                            <i class="fas fa-plus"></i> إضافة دورة
+                        </button>
+                        <button class="btn btn-primary" onclick="showPage('news'); setTimeout(() => openNewsModal(), 200);">
+                            <i class="fas fa-plus"></i> إضافة خبر
+                        </button>
+                        <button class="btn btn-primary" onclick="showPage('new-members'); setTimeout(() => openMemberModal(), 200);">
+                            <i class="fas fa-plus"></i> إضافة عضو جديد
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Site Config -->
+            <div class="page" id="page-site-config">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-cog"></i> إعدادات الموقع</h1>
+                        <p>تحكم في كل شيء يظهر في الموقع الرئيسي</p>
+                    </div>
+                </div>
+
+                <form onsubmit="saveSiteConfig(event)">
+                    <div class="panel">
+                        <div class="panel-header"><h2><i class="fas fa-image"></i> الصور الأساسية</h2></div>
+                        
+                        <div class="form-group">
+                            <label>لوجو الموقع (يظهر في الهيدر والفوتر)</label>
+                            <div class="upload-area" onclick="document.getElementById('uploadLogo').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اضغط لرفع صورة اللوجو</p>
+                                <input type="file" id="uploadLogo" accept="image/*" onchange="uploadCfgImage(this, 'cfgLogoUrl', 'previewLogo')">
+                            </div>
+                            <img id="previewLogo" class="image-preview" style="display:none;">
+                            <input type="hidden" id="cfgLogoUrl">
+                        </div>
+
+                        <div class="form-group">
+                            <label>اللوجو الكبير (في قسم الإعلانات)</label>
+                            <div class="upload-area" onclick="document.getElementById('uploadBigLogo').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اضغط لرفع اللوجو الكبير</p>
+                                <input type="file" id="uploadBigLogo" accept="image/*" onchange="uploadCfgImage(this, 'cfgBigLogoUrl', 'previewBigLogo')">
+                            </div>
+                            <img id="previewBigLogo" class="image-preview" style="display:none;">
+                            <input type="hidden" id="cfgBigLogoUrl">
+                        </div>
+
+                        <div class="form-group">
+                            <label>صورة الافتتاحية (عرضية — landscape)</label>
+                            <div class="upload-area" onclick="document.getElementById('uploadHero').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اضغط لرفع صورة الافتتاحية</p>
+                                <small style="color:var(--text-muted)">يفضل أن تكون بنسبة 16:9 أو 16:10</small>
+                                <input type="file" id="uploadHero" accept="image/*" onchange="uploadCfgImage(this, 'cfgHeroImageUrl', 'previewHero')">
+                            </div>
+                            <img id="previewHero" class="image-preview" style="display:none; max-width:400px;">
+                            <input type="hidden" id="cfgHeroImageUrl">
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2><i class="fas fa-font"></i> النصوص الرئيسية</h2></div>
+                        
+                        <div class="form-group">
+                            <label>عنوان الهيرو الرئيسي</label>
+                            <input type="text" class="form-input" id="cfgHeroTitle" placeholder="القائد مصطفى ياسين الدن">
+                        </div>
+                        <div class="form-group">
+                            <label>الشعار الفرعي</label>
+                            <input type="text" class="form-input" id="cfgHeroSubtitle" placeholder="قيادة . عطاء . بناء">
+                        </div>
+                        <div class="form-group">
+                            <label>الوصف الرئيسي (تحت الهيرو)</label>
+                            <textarea class="form-textarea" id="cfgHeroDescription"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>نص "من نحن" (في الفوتر)</label>
+                            <textarea class="form-textarea" id="cfgAboutText"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>اقتباس القائد</label>
+                            <input type="text" class="form-input" id="cfgQuoteText">
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header"><h2><i class="fas fa-address-book"></i> معلومات التواصل</h2></div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>رقم الهاتف</label>
+                                <input type="tel" class="form-input" id="cfgPhone" placeholder="+20xxxxxxxxx">
+                            </div>
+                            <div class="form-group">
+                                <label>رقم واتساب (بصيغة دولية بدون +)</label>
+                                <input type="tel" class="form-input" id="cfgWhatsapp" placeholder="20xxxxxxxxx">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-input" id="cfgEmail">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>رابط فيسبوك</label>
+                                <input type="url" class="form-input" id="cfgFacebook" placeholder="https://facebook.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label>رابط إنستجرام</label>
+                                <input type="url" class="form-input" id="cfgInstagram" placeholder="https://instagram.com/...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط يوتيوب</label>
+                            <input type="url" class="form-input" id="cfgYoutube" placeholder="https://youtube.com/...">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="padding:14px 40px; font-size:16px;">
+                        <i class="fas fa-save"></i> حفظ جميع الإعدادات
+                    </button>
+                </form>
+            </div>
+
+            <!-- Activities -->
+            <div class="page" id="page-activities">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-flag"></i> الفاعليات والمبادرات</h1>
+                        <p>إدارة جميع الفاعليات والمبادرات</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openActivityModal()">
+                        <i class="fas fa-plus"></i> إضافة فاعلية جديدة
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th><th>العنوان</th><th>التصنيف</th>
+                                    <th>التاريخ</th><th>الموقع</th><th>الحالة</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activitiesTable">
+                                <tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses -->
+            <div class="page" id="page-courses">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-graduation-cap"></i> الدورات التدريبية</h1>
+                        <p>إدارة الكورسات والدورات التدريبية</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCourseModal()">
+                        <i class="fas fa-plus"></i> إضافة دورة جديدة
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th><th>العنوان</th><th>المدرب</th>
+                                    <th>المدة</th><th>تاريخ البدء</th><th>الحالة</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTable">
+                                <tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meetings -->
+            <div class="page" id="page-meetings">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-users"></i> الاجتماعات</h1>
+                        <p>إدارة الاجتماعات الدورية والتنظيمية</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openMeetingModal()">
+                        <i class="fas fa-plus"></i> إضافة اجتماع
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>العنوان</th><th>التاريخ والوقت</th><th>المكان</th>
+                                    <th>الحضور</th><th>الحالة</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="meetingsTable">
+                                <tr><td colspan="6" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News -->
+            <div class="page" id="page-news">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-newspaper"></i> آخر المستجدات</h1>
+                        <p>إدارة الأخبار والتحديثات</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openNewsModal()">
+                        <i class="fas fa-plus"></i> إضافة خبر جديد
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th><th>العنوان</th><th>التصنيف</th>
+                                    <th>التاريخ</th><th>مميز</th><th>الحالة</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="newsTable">
+                                <tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="page" id="page-upcoming-events">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-calendar-alt"></i> الفعاليات القادمة</h1>
+                        <p>تظهر في قسم الإعلانات بالموقع</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openUpcomingEventModal()">
+                        <i class="fas fa-plus"></i> إضافة فعالية قادمة
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>العنوان</th><th>التاريخ</th><th>المكان</th><th>الإجراءات</th></tr>
+                            </thead>
+                            <tbody id="upcomingEventsTable">
+                                <tr><td colspan="4" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Courses -->
+            <div class="page" id="page-upcoming-courses">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-book-open"></i> الدورات القادمة</h1>
+                        <p>تظهر في قسم الإعلانات بالموقع</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openUpcomingCourseModal()">
+                        <i class="fas fa-plus"></i> إضافة دورة قادمة
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>العنوان</th><th>المدرب</th><th>المدة</th><th>تاريخ البدء</th><th>الإجراءات</th></tr>
+                            </thead>
+                            <tbody id="upcomingCoursesTable">
+                                <tr><td colspan="5" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Members -->
+            <div class="page" id="page-new-members">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-user-plus"></i> الأعضاء الجدد</h1>
+                        <p>هؤلاء الأعضاء يظهرون في الشريط العلوي للموقع</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openMemberModal()">
+                        <i class="fas fa-plus"></i> إضافة عضو جديد
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th><th>الاسم الكامل</th><th>المنصب</th>
+                                    <th>تاريخ الانضمام</th><th>الترتيب</th><th>نشط</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTable">
+                                <tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Join Requests -->
+            <div class="page" id="page-join-requests">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-user-check"></i> طلبات الانضمام</h1>
+                        <p>طلبات الانضمام المقدمة من الموقع</p>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th><th>الهاتف</th><th>البريد</th>
+                                    <th>العنوان</th><th>تاريخ الطلب</th><th>الحالة</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTable">
+                                <tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Users -->
+            <div class="page" id="page-admin-users">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-user-shield"></i> مستخدمو الأدمن</h1>
+                        <p>إدارة المستخدمين الذين يملكون صلاحية الدخول</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAdminModal()">
+                        <i class="fas fa-plus"></i> إضافة أدمن جديد
+                    </button>
+                </div>
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم المستخدم</th><th>الاسم الكامل</th><th>الصلاحية</th>
+                                    <th>آخر دخول</th><th>نشط</th><th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTable">
+                                <tr><td colspan="6" class="loading-cell"><i class="fas fa-spinner"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-edit"></i> تعديل</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="modalSaveBtn"><i class="fas fa-save"></i> حفظ</button>
+                <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMessage">رسالة</span>
+    </div>
+
+    <script>
+        // ==================== Supabase ====================
+        const SUPABASE_URL = 'https://wxyvibppnhtmcbebjptv.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_YUuTaCVyM1Gsv_sjEUqg7w_Rzc96Ezm';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let editingId = null;
+
+        // ==================== Helpers ====================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function escapeAttr(str) {
+            if (!str) return '';
+            return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            msg.textContent = message;
+            toast.className = `toast show ${type}`;
+            if (type === 'success') icon.className = 'fas fa-check-circle';
+            else if (type === 'error') icon.className = 'fas fa-times-circle';
+            else icon.className = 'fas fa-info-circle';
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function formatDate(str) {
+            if (!str) return '-';
+            const d = new Date(str);
+            return d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(str) {
+            if (!str) return '-';
+            const d = new Date(str);
+            return d.toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ==================== Login ====================
+        async function login(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الدخول...';
+
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const { data, error } = await supabase
+                    .from('admin_users')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .eq('is_active', true)
+                    .maybeSingle();
+
+                if (error || !data) {
+                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+                    return;
+                }
+
+                currentUser = data;
+                localStorage.setItem('admin_user', JSON.stringify(data));
+                await supabase.from('admin_users').update({ last_login: new Date().toISOString() }).eq('id', data.id);
+
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminWrap').classList.add('active');
+                loadDashboard();
+                showToast(`مرحباً ${data.full_name || data.username}`, 'success');
+            } catch (err) {
+                showToast('حدث خطأ في الاتصال', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+            }
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.removeItem('admin_user');
+                location.reload();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('admin_user');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('adminWrap').classList.add('active');
+                    loadDashboard();
+                } catch (e) {
+                    localStorage.removeItem('admin_user');
+                }
+            }
+        });
+
+        // ==================== Navigation ====================
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const page = document.getElementById(`page-${pageName}`);
+            const nav = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+            
+            if (page) page.classList.add('active');
+            if (nav) nav.classList.add('active');
+            document.getElementById('sidebar').classList.remove('open');
+
+            switch(pageName) {
+                case 'dashboard': loadDashboard(); break;
+                case 'site-config': loadSiteConfig(); break;
+                case 'activities': loadActivities(); break;
+                case 'courses': loadCourses(); break;
+                case 'meetings': loadMeetings(); break;
+                case 'news': loadNews(); break;
+                case 'upcoming-events': loadUpcomingEvents(); break;
+                case 'upcoming-courses': loadUpcomingCourses(); break;
+                case 'new-members': loadMembers(); break;
+                case 'join-requests': loadRequests(); break;
+                case 'admin-users': loadAdmins(); break;
+            }
+        }
+
+        // ==================== Dashboard ====================
+        async function loadDashboard() {
+            const counts = await Promise.all([
+                supabase.from('activities').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabase.from('courses').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabase.from('meetings').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabase.from('news').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+                supabase.from('new_members').select('*', { count: 'exact', head: true }).eq('is_active', true),
+                supabase.from('join_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+            ]);
+
+            document.getElementById('dashActivities').textContent = counts[0].count || 0;
+            document.getElementById('dashCourses').textContent = counts[1].count || 0;
+            document.getElementById('dashMeetings').textContent = counts[2].count || 0;
+            document.getElementById('dashNews').textContent = counts[3].count || 0;
+            document.getElementById('dashMembers').textContent = counts[4].count || 0;
+            document.getElementById('dashPendingReq').textContent = counts[5].count || 0;
+
+            const badge = document.getElementById('pendingRequestsBadge');
+            if (counts[5].count > 0) {
+                badge.textContent = counts[5].count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ==================== Upload ====================
+        async function uploadImage(file, folder = 'general') {
+            if (!file) return null;
+            const ext = file.name.split('.').pop();
+            const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+            
+            const { data, error } = await supabase.storage
+                .from('site-media')
+                .upload(fileName, file, { upsert: false });
+            
+            if (error) {
+                showToast('فشل رفع الصورة: ' + error.message, 'error');
+                throw error;
+            }
+
+            const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(fileName);
+            return urlData.publicUrl;
+        }
+
+        async function uploadCfgImage(input, hiddenId, previewId) {
+            const file = input.files[0];
+            if (!file) return;
+            showToast('جاري رفع الصورة...', 'info');
+            try {
+                const url = await uploadImage(file, 'config');
+                document.getElementById(hiddenId).value = url;
+                const preview = document.getElementById(previewId);
+                preview.src = url;
+                preview.style.display = 'block';
+                showToast('تم رفع الصورة بنجاح', 'success');
+            } catch (e) {}
+        }
+
+        // ==================== Site Config ====================
+        async function loadSiteConfig() {
+            const { data } = await supabase.from('site_config').select('*').eq('id', 1).maybeSingle();
+            if (!data) return;
+            
+            document.getElementById('cfgHeroTitle').value = data.hero_title || '';
+            document.getElementById('cfgHeroSubtitle').value = data.hero_subtitle || '';
+            document.getElementById('cfgHeroDescription').value = data.hero_description || '';
+            document.getElementById('cfgAboutText').value = data.about_text || '';
+            document.getElementById('cfgQuoteText').value = data.quote_text || '';
+            document.getElementById('cfgPhone').value = data.phone || '';
+            document.getElementById('cfgWhatsapp').value = data.whatsapp_number || '';
+            document.getElementById('cfgEmail').value = data.email || '';
+            document.getElementById('cfgFacebook').value = data.facebook_url || '';
+            document.getElementById('cfgInstagram').value = data.instagram_url || '';
+            document.getElementById('cfgYoutube').value = data.youtube_url || '';
+            
+            document.getElementById('cfgLogoUrl').value = data.logo_url || '';
+            document.getElementById('cfgBigLogoUrl').value = data.big_logo_url || '';
+            document.getElementById('cfgHeroImageUrl').value = data.hero_image_url || '';
+
+            if (data.logo_url) {
+                document.getElementById('previewLogo').src = data.logo_url;
+                document.getElementById('previewLogo').style.display = 'block';
+            }
+            if (data.big_logo_url) {
+                document.getElementById('previewBigLogo').src = data.big_logo_url;
+                document.getElementById('previewBigLogo').style.display = 'block';
+            }
+            if (data.hero_image_url) {
+                document.getElementById('previewHero').src = data.hero_image_url;
+                document.getElementById('previewHero').style.display = 'block';
+            }
+        }
+
+        async function saveSiteConfig(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            const payload = {
+                hero_title: document.getElementById('cfgHeroTitle').value,
+                hero_subtitle: document.getElementById('cfgHeroSubtitle').value,
+                hero_description: document.getElementById('cfgHeroDescription').value,
+                about_text: document.getElementById('cfgAboutText').value,
+                quote_text: document.getElementById('cfgQuoteText').value,
+                phone: document.getElementById('cfgPhone').value,
+                whatsapp_number: document.getElementById('cfgWhatsapp').value,
+                email: document.getElementById('cfgEmail').value,
+                facebook_url: document.getElementById('cfgFacebook').value,
+                instagram_url: document.getElementById('cfgInstagram').value,
+                youtube_url: document.getElementById('cfgYoutube').value,
+                logo_url: document.getElementById('cfgLogoUrl').value,
+                big_logo_url: document.getElementById('cfgBigLogoUrl').value,
+                hero_image_url: document.getElementById('cfgHeroImageUrl').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = await supabase.from('site_config').update(payload).eq('id', 1);
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ جميع الإعدادات';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else showToast('تم حفظ الإعدادات بنجاح', 'success');
+        }
+
+        // ==================== Modal ====================
+        function openModal(title, bodyHtml, saveHandler) {
+            document.getElementById('modalTitle').innerHTML = title;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalSaveBtn').onclick = saveHandler;
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            editingId = null;
+        }
+
+        // ==================== Generic Delete ====================
+        async function deleteItem(table, id, reloadFn) {
+            if (!confirm('هل أنت متأكد من الحذف؟')) return;
+            const { error } = await supabase.from(table).delete().eq('id', id);
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحذف بنجاح', 'success');
+                reloadFn();
+            }
+        }
+
+        // ==================== Activities ====================
+        async function loadActivities() {
+            const { data, error } = await supabase.from('activities').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('activitiesTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-flag"></i><p>لا توجد فاعليات</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(a => `
+                <tr>
+                    <td>${a.image_url ? `<img src="${a.image_url}" class="td-image">` : '<div class="td-image-placeholder"><i class="fas fa-flag"></i></div>'}</td>
+                    <td><strong>${escapeHtml(a.title)}</strong></td>
+                    <td>${escapeHtml(a.category || '-')}</td>
+                    <td>${formatDate(a.activity_date)}</td>
+                    <td>${escapeHtml(a.location || '-')}</td>
+                    <td><span class="status-badge status-${a.status}">${a.status === 'published' ? 'منشور' : 'مسودة'}</span></td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openActivityModal(${JSON.stringify(a).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('activities', '${a.id}', loadActivities)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openActivityModal(activity = null) {
+            editingId = activity?.id || null;
+            const isEdit = !!activity;
+
+            const html = `
+                <form id="activityForm" onsubmit="saveActivity(event)">
+                    <div class="form-group">
+                        <label>العنوان <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="actTitle" required value="${escapeAttr(activity?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea class="form-textarea" id="actDesc">${escapeHtml(activity?.description || '')}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>التصنيف</label>
+                            <select class="form-select" id="actCategory">
+                                <option value="مبادرة" ${activity?.category === 'مبادرة' ? 'selected' : ''}>مبادرة</option>
+                                <option value="فاعلية" ${activity?.category === 'فاعلية' ? 'selected' : ''}>فاعلية</option>
+                                <option value="حملة" ${activity?.category === 'حملة' ? 'selected' : ''}>حملة</option>
+                                <option value="مشروع" ${activity?.category === 'مشروع' ? 'selected' : ''}>مشروع</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>التاريخ</label>
+                            <input type="date" class="form-input" id="actDate" value="${activity?.activity_date || ''}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الموقع / المكان</label>
+                        <input type="text" class="form-input" id="actLocation" value="${escapeAttr(activity?.location || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الصورة</label>
+                        <input type="file" accept="image/*" id="actImage" class="form-input">
+                        ${activity?.image_url ? `<img src="${activity.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="actImageUrl" value="${activity?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select class="form-select" id="actStatus">
+                            <option value="published" ${activity?.status !== 'draft' ? 'selected' : ''}>منشور</option>
+                            <option value="draft" ${activity?.status === 'draft' ? 'selected' : ''}>مسودة</option>
+                        </select>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-flag"></i> ${isEdit ? 'تعديل' : 'إضافة'} فاعلية`,
+                html,
+                () => document.getElementById('activityForm').requestSubmit()
+            );
+        }
+
+        async function saveActivity(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            let imageUrl = document.getElementById('actImageUrl').value;
+            const file = document.getElementById('actImage').files[0];
+            if (file) {
+                try { imageUrl = await uploadImage(file, 'activities'); } catch (e) {}
+            }
+
+            const payload = {
+                title: document.getElementById('actTitle').value.trim(),
+                description: document.getElementById('actDesc').value.trim(),
+                category: document.getElementById('actCategory').value,
+                activity_date: document.getElementById('actDate').value || null,
+                location: document.getElementById('actLocation').value.trim(),
+                image_url: imageUrl || null,
+                status: document.getElementById('actStatus').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('activities').update(payload).eq('id', editingId)
+                : await supabase.from('activities').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadActivities();
+            }
+        }
+
+        // ==================== Courses ====================
+        async function loadCourses() {
+            const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('coursesTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-graduation-cap"></i><p>لا توجد دورات</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td>${c.image_url ? `<img src="${c.image_url}" class="td-image">` : '<div class="td-image-placeholder"><i class="fas fa-book"></i></div>'}</td>
+                    <td><strong>${escapeHtml(c.title)}</strong></td>
+                    <td>${escapeHtml(c.instructor || '-')}</td>
+                    <td>${escapeHtml(c.duration || '-')}</td>
+                    <td>${formatDate(c.start_date)}</td>
+                    <td><span class="status-badge status-${c.status}">${c.status === 'published' ? 'منشور' : 'مسودة'}</span></td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openCourseModal(${JSON.stringify(c).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('courses', '${c.id}', loadCourses)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCourseModal(course = null) {
+            editingId = course?.id || null;
+            const isEdit = !!course;
+
+            const html = `
+                <form id="courseForm" onsubmit="saveCourse(event)">
+                    <div class="form-group">
+                        <label>اسم الدورة <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="crsTitle" required value="${escapeAttr(course?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea class="form-textarea" id="crsDesc">${escapeHtml(course?.description || '')}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المدرب</label>
+                            <input type="text" class="form-input" id="crsInstructor" value="${escapeAttr(course?.instructor || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>المدة</label>
+                            <input type="text" class="form-input" id="crsDuration" placeholder="مثلاً: 4 أسابيع" value="${escapeAttr(course?.duration || '')}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تاريخ البدء</label>
+                            <input type="date" class="form-input" id="crsStartDate" value="${course?.start_date || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الانتهاء</label>
+                            <input type="date" class="form-input" id="crsEndDate" value="${course?.end_date || ''}">
+                        </div>
+                    </div>
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label>المكان</label>
+                            <input type="text" class="form-input" id="crsLocation" value="${escapeAttr(course?.location || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>عدد المقاعد</label>
+                            <input type="number" class="form-input" id="crsSeats" value="${course?.seats || 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>السعر</label>
+                            <input type="text" class="form-input" id="crsPrice" value="${escapeAttr(course?.price || 'مجاني')}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الصورة</label>
+                        <input type="file" accept="image/*" id="crsImage" class="form-input">
+                        ${course?.image_url ? `<img src="${course.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="crsImageUrl" value="${course?.image_url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select class="form-select" id="crsStatus">
+                            <option value="published" ${course?.status !== 'draft' ? 'selected' : ''}>منشور</option>
+                            <option value="draft" ${course?.status === 'draft' ? 'selected' : ''}>مسودة</option>
+                        </select>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-graduation-cap"></i> ${isEdit ? 'تعديل' : 'إضافة'} دورة`,
+                html,
+                () => document.getElementById('courseForm').requestSubmit()
+            );
+        }
+
+        async function saveCourse(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            let imageUrl = document.getElementById('crsImageUrl').value;
+            const file = document.getElementById('crsImage').files[0];
+            if (file) {
+                try { imageUrl = await uploadImage(file, 'courses'); } catch (e) {}
+            }
+
+            const payload = {
+                title: document.getElementById('crsTitle').value.trim(),
+                description: document.getElementById('crsDesc').value.trim(),
+                instructor: document.getElementById('crsInstructor').value.trim(),
+                duration: document.getElementById('crsDuration').value.trim(),
+                start_date: document.getElementById('crsStartDate').value || null,
+                end_date: document.getElementById('crsEndDate').value || null,
+                location: document.getElementById('crsLocation').value.trim(),
+                seats: parseInt(document.getElementById('crsSeats').value) || 0,
+                price: document.getElementById('crsPrice').value.trim() || 'مجاني',
+                image_url: imageUrl || null,
+                status: document.getElementById('crsStatus').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('courses').update(payload).eq('id', editingId)
+                : await supabase.from('courses').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadCourses();
+            }
+        }
+
+        // ==================== Meetings ====================
+        async function loadMeetings() {
+            const { data, error } = await supabase.from('meetings').select('*').order('meeting_date', { ascending: false });
+            const tbody = document.getElementById('meetingsTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users"></i><p>لا توجد اجتماعات</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(m => `
+                <tr>
+                    <td><strong>${escapeHtml(m.title)}</strong></td>
+                    <td>${formatDateTime(m.meeting_date)}</td>
+                    <td>${escapeHtml(m.location || '-')}</td>
+                    <td>${escapeHtml(m.attendees || '-')}</td>
+                    <td><span class="status-badge status-${m.status}">${m.status === 'published' ? 'منشور' : 'مسودة'}</span></td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openMeetingModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('meetings', '${m.id}', loadMeetings)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openMeetingModal(meeting = null) {
+            editingId = meeting?.id || null;
+            const isEdit = !!meeting;
+            const dt = meeting?.meeting_date ? new Date(meeting.meeting_date).toISOString().slice(0, 16) : '';
+
+            const html = `
+                <form id="meetingForm" onsubmit="saveMeeting(event)">
+                    <div class="form-group">
+                        <label>عنوان الاجتماع <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="mtgTitle" required value="${escapeAttr(meeting?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea class="form-textarea" id="mtgDesc">${escapeHtml(meeting?.description || '')}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ ووقت الاجتماع</label>
+                        <input type="datetime-local" class="form-input" id="mtgDate" value="${dt}">
+                    </div>
+                    <div class="form-group">
+                        <label>المكان</label>
+                        <input type="text" class="form-input" id="mtgLocation" value="${escapeAttr(meeting?.location || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الحضور</label>
+                        <input type="text" class="form-input" id="mtgAttendees" placeholder="مثلاً: أعضاء المجلس" value="${escapeAttr(meeting?.attendees || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة</label>
+                        <select class="form-select" id="mtgStatus">
+                            <option value="published" ${meeting?.status !== 'draft' ? 'selected' : ''}>منشور</option>
+                            <option value="draft" ${meeting?.status === 'draft' ? 'selected' : ''}>مسودة</option>
+                        </select>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-users"></i> ${isEdit ? 'تعديل' : 'إضافة'} اجتماع`,
+                html,
+                () => document.getElementById('meetingForm').requestSubmit()
+            );
+        }
+
+        async function saveMeeting(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            const payload = {
+                title: document.getElementById('mtgTitle').value.trim(),
+                description: document.getElementById('mtgDesc').value.trim(),
+                meeting_date: document.getElementById('mtgDate').value || null,
+                location: document.getElementById('mtgLocation').value.trim(),
+                attendees: document.getElementById('mtgAttendees').value.trim(),
+                status: document.getElementById('mtgStatus').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('meetings').update(payload).eq('id', editingId)
+                : await supabase.from('meetings').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadMeetings();
+            }
+        }
+
+        // ==================== News ====================
+        async function loadNews() {
+            const { data, error } = await supabase.from('news').select('*').order('news_date', { ascending: false });
+            const tbody = document.getElementById('newsTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-newspaper"></i><p>لا توجد أخبار</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(n => `
+                <tr>
+                    <td>${n.image_url ? `<img src="${n.image_url}" class="td-image">` : '<div class="td-image-placeholder"><i class="fas fa-newspaper"></i></div>'}</td>
+                    <td><strong>${escapeHtml(n.title)}</strong></td>
+                    <td>${escapeHtml(n.category || '-')}</td>
+                    <td>${formatDate(n.news_date)}</td>
+                    <td>${n.is_featured ? '<i class="fas fa-star" style="color:var(--gold-accent)"></i>' : '-'}</td>
+                    <td><span class="status-badge status-${n.status}">${n.status === 'published' ? 'منشور' : 'مسودة'}</span></td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openNewsModal(${JSON.stringify(n).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('news', '${n.id}', loadNews)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openNewsModal(news = null) {
+            editingId = news?.id || null;
+            const isEdit = !!news;
+
+            const html = `
+                <form id="newsForm" onsubmit="saveNews(event)">
+                    <div class="form-group">
+                        <label>عنوان الخبر <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="newsTitle" required value="${escapeAttr(news?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الملخص (يظهر في البطاقة)</label>
+                        <textarea class="form-textarea" id="newsSummary" maxlength="200">${escapeHtml(news?.summary || '')}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>المحتوى الكامل</label>
+                        <textarea class="form-textarea" id="newsContent" style="min-height: 150px;">${escapeHtml(news?.content || '')}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>التصنيف</label>
+                            <input type="text" class="form-input" id="newsCategory" value="${escapeAttr(news?.category || 'عام')}">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الخبر</label>
+                            <input type="date" class="form-input" id="newsDate" value="${news?.news_date || new Date().toISOString().slice(0,10)}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الصورة الرئيسية</label>
+                        <input type="file" accept="image/*" id="newsImage" class="form-input">
+                        ${news?.image_url ? `<img src="${news.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="newsImageUrl" value="${news?.image_url || ''}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="newsFeatured" ${news?.is_featured ? 'checked' : ''}>
+                                خبر مميز
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select class="form-select" id="newsStatus">
+                                <option value="published" ${news?.status !== 'draft' ? 'selected' : ''}>منشور</option>
+                                <option value="draft" ${news?.status === 'draft' ? 'selected' : ''}>مسودة</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-newspaper"></i> ${isEdit ? 'تعديل' : 'إضافة'} خبر`,
+                html,
+                () => document.getElementById('newsForm').requestSubmit()
+            );
+        }
+
+        async function saveNews(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            let imageUrl = document.getElementById('newsImageUrl').value;
+            const file = document.getElementById('newsImage').files[0];
+            if (file) {
+                try { imageUrl = await uploadImage(file, 'news'); } catch (e) {}
+            }
+
+            const payload = {
+                title: document.getElementById('newsTitle').value.trim(),
+                summary: document.getElementById('newsSummary').value.trim(),
+                content: document.getElementById('newsContent').value.trim(),
+                category: document.getElementById('newsCategory').value.trim() || 'عام',
+                news_date: document.getElementById('newsDate').value || new Date().toISOString().slice(0,10),
+                image_url: imageUrl || null,
+                is_featured: document.getElementById('newsFeatured').checked,
+                status: document.getElementById('newsStatus').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('news').update(payload).eq('id', editingId)
+                : await supabase.from('news').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadNews();
+            }
+        }
+
+        // ==================== Upcoming Events ====================
+        async function loadUpcomingEvents() {
+            const { data, error } = await supabase.from('upcoming_events').select('*').order('event_date', { ascending: true });
+            const tbody = document.getElementById('upcomingEventsTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-calendar-times"></i><p>لا توجد فعاليات قادمة</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(e => `
+                <tr>
+                    <td><strong>${escapeHtml(e.title)}</strong></td>
+                    <td>${formatDateTime(e.event_date)}</td>
+                    <td>${escapeHtml(e.location || '-')}</td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openUpcomingEventModal(${JSON.stringify(e).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('upcoming_events', '${e.id}', loadUpcomingEvents)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openUpcomingEventModal(ev = null) {
+            editingId = ev?.id || null;
+            const isEdit = !!ev;
+            const dt = ev?.event_date ? new Date(ev.event_date).toISOString().slice(0, 16) : '';
+
+            const html = `
+                <form id="upEventForm" onsubmit="saveUpcomingEvent(event)">
+                    <div class="form-group">
+                        <label>عنوان الفعالية <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="upEvTitle" required value="${escapeAttr(ev?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea class="form-textarea" id="upEvDesc">${escapeHtml(ev?.description || '')}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ والوقت</label>
+                        <input type="datetime-local" class="form-input" id="upEvDate" value="${dt}">
+                    </div>
+                    <div class="form-group">
+                        <label>المكان</label>
+                        <input type="text" class="form-input" id="upEvLocation" value="${escapeAttr(ev?.location || '')}">
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-calendar-alt"></i> ${isEdit ? 'تعديل' : 'إضافة'} فعالية قادمة`,
+                html,
+                () => document.getElementById('upEventForm').requestSubmit()
+            );
+        }
+
+        async function saveUpcomingEvent(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            const payload = {
+                title: document.getElementById('upEvTitle').value.trim(),
+                description: document.getElementById('upEvDesc').value.trim(),
+                event_date: document.getElementById('upEvDate').value || null,
+                location: document.getElementById('upEvLocation').value.trim(),
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('upcoming_events').update(payload).eq('id', editingId)
+                : await supabase.from('upcoming_events').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadUpcomingEvents();
+            }
+        }
+
+        // ==================== Upcoming Courses ====================
+        async function loadUpcomingCourses() {
+            const { data, error } = await supabase.from('upcoming_courses').select('*').order('start_date', { ascending: true });
+            const tbody = document.getElementById('upcomingCoursesTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-book-open"></i><p>لا توجد دورات قادمة</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td><strong>${escapeHtml(c.title)}</strong></td>
+                    <td>${escapeHtml(c.instructor || '-')}</td>
+                    <td>${escapeHtml(c.duration || '-')}</td>
+                    <td>${formatDate(c.start_date)}</td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openUpcomingCourseModal(${JSON.stringify(c).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('upcoming_courses', '${c.id}', loadUpcomingCourses)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openUpcomingCourseModal(course = null) {
+            editingId = course?.id || null;
+            const isEdit = !!course;
+
+            const html = `
+                <form id="upCourseForm" onsubmit="saveUpcomingCourse(event)">
+                    <div class="form-group">
+                        <label>اسم الدورة <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="upCrTitle" required value="${escapeAttr(course?.title || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف</label>
+                        <textarea class="form-textarea" id="upCrDesc">${escapeHtml(course?.description || '')}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>المدرب</label>
+                            <input type="text" class="form-input" id="upCrInstructor" value="${escapeAttr(course?.instructor || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>المدة</label>
+                            <input type="text" class="form-input" id="upCrDuration" value="${escapeAttr(course?.duration || '')}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>تاريخ البدء</label>
+                            <input type="date" class="form-input" id="upCrStartDate" value="${course?.start_date || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>المكان</label>
+                            <input type="text" class="form-input" id="upCrLocation" value="${escapeAttr(course?.location || '')}">
+                        </div>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-book-open"></i> ${isEdit ? 'تعديل' : 'إضافة'} دورة قادمة`,
+                html,
+                () => document.getElementById('upCourseForm').requestSubmit()
+            );
+        }
+
+        async function saveUpcomingCourse(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            const payload = {
+                title: document.getElementById('upCrTitle').value.trim(),
+                description: document.getElementById('upCrDesc').value.trim(),
+                instructor: document.getElementById('upCrInstructor').value.trim(),
+                duration: document.getElementById('upCrDuration').value.trim(),
+                start_date: document.getElementById('upCrStartDate').value || null,
+                location: document.getElementById('upCrLocation').value.trim(),
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = editingId
+                ? await supabase.from('upcoming_courses').update(payload).eq('id', editingId)
+                : await supabase.from('upcoming_courses').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadUpcomingCourses();
+            }
+        }
+
+        // ==================== New Members ====================
+        async function loadMembers() {
+            const { data, error } = await supabase.from('new_members').select('*').order('display_order', { ascending: true }).order('created_at', { ascending: false });
+            const tbody = document.getElementById('membersTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-user-plus"></i><p>لا يوجد أعضاء جدد</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(m => `
+                <tr>
+                    <td>${m.image_url ? `<img src="${m.image_url}" class="td-image">` : '<div class="td-image-placeholder"><i class="fas fa-user"></i></div>'}</td>
+                    <td><strong>${escapeHtml(m.full_name)}</strong></td>
+                    <td>${escapeHtml(m.position || 'عضو جديد')}</td>
+                    <td>${formatDate(m.join_date)}</td>
+                    <td>${m.display_order}</td>
+                    <td>${m.is_active ? '<i class="fas fa-check-circle" style="color:#22c55e"></i>' : '<i class="fas fa-times-circle" style="color:#dc2626"></i>'}</td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openMemberModal(${JSON.stringify(m).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('new_members', '${m.id}', loadMembers)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openMemberModal(member = null) {
+            editingId = member?.id || null;
+            const isEdit = !!member;
+
+            const html = `
+                <form id="memberForm" onsubmit="saveMember(event)">
+                    <div class="form-group">
+                        <label>الاسم الكامل <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="memName" required value="${escapeAttr(member?.full_name || '')}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>المنصب</label>
+                            <input type="text" class="form-input" id="memPosition" value="${escapeAttr(member?.position || 'عضو جديد')}">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الانضمام</label>
+                            <input type="date" class="form-input" id="memJoinDate" value="${member?.join_date || new Date().toISOString().slice(0,10)}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>صورة العضو</label>
+                        <input type="file" accept="image/*" id="memImage" class="form-input">
+                        ${member?.image_url ? `<img src="${member.image_url}" class="image-preview">` : ''}
+                        <input type="hidden" id="memImageUrl" value="${member?.image_url || ''}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ترتيب العرض (أقل = يظهر أولاً)</label>
+                            <input type="number" class="form-input" id="memOrder" value="${member?.display_order || 0}">
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select class="form-select" id="memActive">
+                                <option value="true" ${member?.is_active !== false ? 'selected' : ''}>نشط</option>
+                                <option value="false" ${member?.is_active === false ? 'selected' : ''}>غير نشط</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-user-plus"></i> ${isEdit ? 'تعديل' : 'إضافة'} عضو جديد`,
+                html,
+                () => document.getElementById('memberForm').requestSubmit()
+            );
+        }
+
+        async function saveMember(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            let imageUrl = document.getElementById('memImageUrl').value;
+            const file = document.getElementById('memImage').files[0];
+            if (file) {
+                try { imageUrl = await uploadImage(file, 'members'); } catch (e) {}
+            }
+
+            const payload = {
+                full_name: document.getElementById('memName').value.trim(),
+                position: document.getElementById('memPosition').value.trim() || 'عضو جديد',
+                join_date: document.getElementById('memJoinDate').value,
+                image_url: imageUrl || null,
+                display_order: parseInt(document.getElementById('memOrder').value) || 0,
+                is_active: document.getElementById('memActive').value === 'true'
+            };
+
+            const { error } = editingId
+                ? await supabase.from('new_members').update(payload).eq('id', editingId)
+                : await supabase.from('new_members').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadMembers();
+            }
+        }
+
+        // ==================== Join Requests ====================
+        async function loadRequests() {
+            const { data, error } = await supabase.from('join_requests').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('requestsTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-user-check"></i><p>لا توجد طلبات انضمام</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(r => `
+                <tr>
+                    <td><strong>${escapeHtml(r.full_name)}</strong></td>
+                    <td><a href="tel:${escapeAttr(r.phone)}" style="color:var(--burgundy-light)">${escapeHtml(r.phone)}</a></td>
+                    <td>${r.email ? `<a href="mailto:${escapeAttr(r.email)}" style="color:var(--burgundy-light)">${escapeHtml(r.email)}</a>` : '-'}</td>
+                    <td>${escapeHtml(r.address || '-')}</td>
+                    <td>${formatDate(r.created_at)}</td>
+                    <td><span class="status-badge status-${r.status}">${r.status === 'pending' ? 'معلق' : r.status === 'approved' ? 'مقبول' : 'مرفوض'}</span></td>
+                    <td class="td-actions">
+                        <button class="btn btn-secondary btn-sm" onclick='viewRequest(${JSON.stringify(r).replace(/'/g, "&#39;")})'><i class="fas fa-eye"></i></button>
+                        ${r.status === 'pending' ? `
+                            <button class="btn btn-success btn-sm" onclick="updateRequestStatus('${r.id}', 'approved')"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="updateRequestStatus('${r.id}', 'rejected')"><i class="fas fa-times"></i></button>
+                        ` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteItem('join_requests', '${r.id}', loadRequests)"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewRequest(req) {
+            const html = `
+                <div style="line-height:2.2;">
+                    <p><strong>الاسم:</strong> ${escapeHtml(req.full_name)}</p>
+                    <p><strong>الهاتف:</strong> ${escapeHtml(req.phone)}</p>
+                    <p><strong>البريد:</strong> ${escapeHtml(req.email || '-')}</p>
+                    <p><strong>العمر:</strong> ${req.age || '-'}</p>
+                    <p><strong>العنوان:</strong> ${escapeHtml(req.address || '-')}</p>
+                    <p><strong>تاريخ التقديم:</strong> ${formatDateTime(req.created_at)}</p>
+                    <div style="margin-top:15px; padding:15px; background:var(--black); border-radius:8px; border:1px solid var(--border);">
+                        <strong>سبب الانضمام:</strong>
+                        <p style="margin-top:8px; color:var(--text-muted);">${escapeHtml(req.reason || 'لم يتم ذكر سبب')}</p>
+                    </div>
+                </div>
+            `;
+            openModal('<i class="fas fa-eye"></i> تفاصيل الطلب', html, () => closeModal());
+        }
+
+        async function updateRequestStatus(id, status) {
+            const { error } = await supabase.from('join_requests').update({ status }).eq('id', id);
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast(status === 'approved' ? 'تم قبول الطلب' : 'تم رفض الطلب', 'success');
+                loadRequests();
+                loadDashboard();
+            }
+        }
+
+        // ==================== Admin Users ====================
+        async function loadAdmins() {
+            const { data, error } = await supabase.from('admin_users').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('adminsTable');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">لا يوجد مستخدمون</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(a => `
+                <tr>
+                    <td><strong>${escapeHtml(a.username)}</strong></td>
+                    <td>${escapeHtml(a.full_name || '-')}</td>
+                    <td>${a.role === 'super_admin' ? 'مدير عام' : 'أدمن'}</td>
+                    <td>${a.last_login ? formatDateTime(a.last_login) : 'لم يسجل دخول بعد'}</td>
+                    <td>${a.is_active ? '<i class="fas fa-check-circle" style="color:#22c55e"></i>' : '<i class="fas fa-times-circle" style="color:#dc2626"></i>'}</td>
+                    <td class="td-actions">
+                        <button class="btn btn-primary btn-sm" onclick='openAdminModal(${JSON.stringify(a).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
+                        ${a.username !== currentUser?.username ? `<button class="btn btn-danger btn-sm" onclick="deleteItem('admin_users', '${a.id}', loadAdmins)"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAdminModal(admin = null) {
+            editingId = admin?.id || null;
+            const isEdit = !!admin;
+
+            const html = `
+                <form id="adminForm" onsubmit="saveAdmin(event)">
+                    <div class="form-group">
+                        <label>اسم المستخدم <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="admUsername" required value="${escapeAttr(admin?.username || '')}" ${isEdit ? 'readonly' : ''}>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور ${isEdit ? '(اتركها فارغة للإبقاء على الحالية)' : '<span class="required">*</span>'}</label>
+                        <input type="password" class="form-input" id="admPassword" ${!isEdit ? 'required' : ''} placeholder="${isEdit ? 'غير فارغ لتغيير كلمة المرور' : 'أدخل كلمة المرور'}">
+                    </div>
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input type="text" class="form-input" id="admFullName" value="${escapeAttr(admin?.full_name || '')}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الصلاحية</label>
+                            <select class="form-select" id="admRole">
+                                <option value="admin" ${admin?.role === 'admin' ? 'selected' : ''}>أدمن</option>
+                                <option value="super_admin" ${admin?.role === 'super_admin' ? 'selected' : ''}>مدير عام</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>الحالة</label>
+                            <select class="form-select" id="admActive">
+                                <option value="true" ${admin?.is_active !== false ? 'selected' : ''}>نشط</option>
+                                <option value="false" ${admin?.is_active === false ? 'selected' : ''}>غير نشط</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            `;
+
+            openModal(
+                `<i class="fas fa-user-shield"></i> ${isEdit ? 'تعديل' : 'إضافة'} أدمن`,
+                html,
+                () => document.getElementById('adminForm').requestSubmit()
+            );
+        }
+
+        async function saveAdmin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('modalSaveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+
+            const password = document.getElementById('admPassword').value;
+            const payload = {
+                username: document.getElementById('admUsername').value.trim(),
+                full_name: document.getElementById('admFullName').value.trim(),
+                role: document.getElementById('admRole').value,
+                is_active: document.getElementById('admActive').value === 'true'
+            };
+
+            if (password) payload.password = password;
+
+            const { error } = editingId
+                ? await supabase.from('admin_users').update(payload).eq('id', editingId)
+                : await supabase.from('admin_users').insert([payload]);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+
+            if (error) showToast('خطأ: ' + error.message, 'error');
+            else {
+                showToast('تم الحفظ بنجاح', 'success');
+                closeModal();
+                loadAdmins();
+            }
+        }
+    </script>
+</body>
+</html>
